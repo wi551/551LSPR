@@ -77,7 +77,7 @@ public class CameraActivity extends Activity {
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
-
+	private Timer timer = new Timer();
 	private Camera mCamera;
 	private CameraPreview mPreview;
 	// picture call back start
@@ -122,24 +122,38 @@ public class CameraActivity extends Activity {
 		preview.addView(mPreview);
 
 		// start timer
-		int delay = 5000; // delay for 5 sec.
-		int period = 10000; // repeat every 10sec.
-		Timer timer = new Timer();
+		int delay = 1000; // delay for 1 seconds
+		int delay2= 2000; // delay for 2 seconds
 
-		timer.scheduleAtFixedRate(new TimerTask() {
+		timer.schedule(new TimerTask() {
 			public void run() {
 				mCamera.takePicture(null, null, mPicture);
 			}
-		}, delay, period);
+		}, delay);
 
+		timer.schedule(new TimerTask() {
+			public void run() {
+				finish();
+			}
+		}, delay2);
 		// end timer
-
+		
+		
+		
+		
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		// release the camera immediately on pause event
+		releaseCamera();
+
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 		releaseCamera();
 
 	}
