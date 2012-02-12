@@ -1,7 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="hello">Hello World, LSPRActivity!</string>
-    <string name="app_name">LSPR</string>
+    <!-- Main -->
+    <string name="app_name">Stolen Phone Recovery</string>
+    <string name="on_button">Activate</string>
+    <string name="off_button">Deactivate</string>
+    
+    <string name="lspr_device_admin">App/Device Admin</string>
+    <string name="app_label">Stolen Phone Recovery</string>
+    <string name="app_description">An app that helps recover stolen phones.</string>
+        
+	<!-- Settings -->
+    <string name="setting_txt">Setting</string>
+    <string name="rst_pw_txt">Reset Password</string>
+    <string name="max_failed_pw1_txt">Max failed password attempt to trigger camera and GPS services</string>
+    <string name="max_failed_pw2_txt">Max failed password attempt to trigger data wipe</string>
+    <string name="dm_txt">Delivery</string>
+    <string name="email_txt">Email:</string>
+    <string name="text_txt">Text</string>
+    <string name="web_txt">Website</string>
+    <string name="email_pass">Password:</string>
+    <string name="activate_txt">Activate</string>
+    
+    <!-- Welcome Page -->
+    <string name="lspr_welcome">Welcome Screen</string>
+    <string name="welcome_title_txt">Welcome!</string>
+    <string name="welcome_message_txt">[insert some welcome message here ]</string>
+    <string name="welcome_next_txt">Let\'s get started!</string>
+    
+    <!-- Enable Admin Page -->
+    <string name="eap_title_txt">Enable Admin</string>
+    <string name="eap_message_txt">[insert some message here ]</string>
+    <string name="eap_next_txt">Enable Admin</string>
+    <string name="lspr_enable_admin">Enable Admin Screen</string>
+    
+    <!-- Set New Password Page -->
+    <string name="snp_title_txt">Set New Password</string>
+    <string name="snp_message_txt">[insert some message here ]</string>
+    <string name="snp_next_txt">Set New Password</string>
+    <string name="lspr_set_new_password">Set New Password Screen</string>
+    
+    <!-- Configure Page -->
+    <string name="cp_title_txt">Configure</string>
+    <string name="cp_message_txt">[insert some message here ]</string>
+    <string name="cp_next_txt">Configure</string>
+    <string name="lspr_configure">Configure screen</string>
+    
+    <!-- Lock Pattern Util -->
+    <string name="lockscreen_return_to_call">Lockscreen return to call</string>
+    <string name="lockscreen_emergency_call">Lockscreen emergency call</string>
 
 </resources>

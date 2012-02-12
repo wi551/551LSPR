@@ -4,9 +4,24 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="fill_parent"
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:layout_weight="0.28"
+        android:background="@drawable/darkwood" >
+
+        <ToggleButton
+            android:id="@+id/activation_button"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="164dp"
+            android:text="@string/off_button"
+            android:textOff="Deactivated"
+            android:textOn="Activated" />
+
+    </RelativeLayout>
 
 </LinearLayout>

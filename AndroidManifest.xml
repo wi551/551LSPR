@@ -4,6 +4,16 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
     <uses-sdk android:minSdkVersion="10" />
 
     <application
@@ -15,9 +25,92 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Settings -->
+
+        <activity
+            android:name=".SettingActivity$Controller"
+            android:label="@string/lspr_device_admin" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".SettingActivity"
+            android:description="@string/app_description"
+            android:label="@string/app_label"
+            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Welcome Activity -->
+
+        <activity
+            android:name=".setup.WelcomeActivity"
+            android:label="@string/lspr_welcome" >
+        </activity>
+
+        <!-- Enable AdminActivity -->
+
+        <activity
+            android:name=".setup.EnableAdminActivity$Controller"
+            android:label="@string/lspr_enable_admin" >
+        </activity>
+
+        <receiver
+            android:name=".setup.EnableAdminActivity"
+            android:label="@string/lspr_enable_admin"
+            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- Set New Password Activity -->
+
+        <activity
+            android:name=".setup.SetNewPassActivity$Controller"
+            android:label="@string/lspr_set_new_password" >
+        </activity>
+
+        <receiver
+            android:name=".setup.SetNewPassActivity"
+            android:label="@string/lspr_set_new_password"
+            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+        
+        <!-- Configure Activity -->
+
+        <activity
+            android:name=".setup.ConfigureActivity"
+            android:label="@string/lspr_configure" >
+        </activity>
+        
+        
     </application>
 
 </manifest>
