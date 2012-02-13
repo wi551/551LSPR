@@ -92,15 +92,11 @@
 
         <receiver
             android:name=".setup.SetNewPassActivity"
-            android:label="@string/lspr_set_new_password"
-            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+            android:label="@string/lspr_set_new_password">
             <meta-data
                 android:name="android.app.device_admin"
                 android:resource="@xml/device_admin" />
 
-            <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
         </receiver>
         
         <!-- Configure Activity -->
@@ -110,6 +106,19 @@
             android:label="@string/lspr_configure" >
         </activity>
         
+       <!-- Service -->
+
+        <service
+            android:enabled="true"
+            android:name=".service.CameraGPSTriggerService"
+            android:label="@string/lspr_service" >
+        </service>
+        
+        <service
+            android:enabled="true"
+            android:name=".service.RestartsService"
+            android:label="@string/lspr_service" >
+        </service>
         
     </application>
 

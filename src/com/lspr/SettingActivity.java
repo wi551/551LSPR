@@ -1,5 +1,8 @@
 package com.lspr;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.admin.DeviceAdminReceiver;
@@ -11,17 +14,17 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.lspr.service.CameraGPSTriggerService;
+
 public class SettingActivity extends DeviceAdminReceiver {
 
-	private static final String TAG1 = "Pattern";
-	private static final String TAG2 = "Password Quality";
 	static final private int SET_PASS = 0;
 
 	static SharedPreferences getSamplePreferences(Context context) {
@@ -33,6 +36,9 @@ public class SettingActivity extends DeviceAdminReceiver {
 	static String PREF_PASSWORD_LENGTH = "password_length";
 	static String PREF_MAX_FAILED_PW_FOR_WIPE = "max_failed_pw_for_wipe";
 	static String PREF_MAX_FAILED_PW_FOR_SERVICE = "max_failed_pw_for_service";
+	static String PREF_EMAIL = "email_address";
+	static String PREF_EMAIL_PASS = "email_password";
+	static String PREF_BACK_FROM_SETTING_THRU_BACK_BTN = "back_from_setting_thru_back_btn";
 
 	void showToast(Context context, CharSequence msg) {
 		Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
@@ -43,21 +49,28 @@ public class SettingActivity extends DeviceAdminReceiver {
 		showToast(context, "New password is set.");
 	}
 
-	// @Override
-	// public void onPasswordFailed(Context context, Intent intent) {
-	// showToast(context, "Sample Device Admin: pw failed");
-	// }
+	@Override
+	public void onPasswordFailed(Context context, Intent intent) {
 
-	// @Override
-	// public void onEnabled(Context context, Intent intent) {
-	// showToast(context, "Now please set a new password.");
-	// }
+		SharedPreferences prefs = this.getSamplePreferences(context);
+		final int maxFailedPwForService = prefs.getInt(
+				PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
+
+		int attempt = Controller.mDPM.getCurrentFailedPasswordAttempts();
+		// showToast(context, "attempt: " + attempt);
+
+		if (attempt == maxFailedPwForService) {
+			Intent serviceIntent = new Intent(context,
+					CameraGPSTriggerService.class);
+			context.startService(serviceIntent);
+		}
+	}
 
 	public static class Controller extends Activity {
 
 		static final int RESULT_ENABLE = 1;
 
-		DevicePolicyManager mDPM;
+		static DevicePolicyManager mDPM;
 		ActivityManager mAM;
 		ComponentName LSPRCN;
 
@@ -103,9 +116,13 @@ public class SettingActivity extends DeviceAdminReceiver {
 
 				public void onTextChanged(CharSequence s, int start,
 						int before, int count) {
-					int maxFailCount = Integer.parseInt(s.toString());
-					// the one that triggers camera and GPS service
-					setMaxFailedPwForService(maxFailCount);
+					try {
+						int maxFailCount = Integer.parseInt(s.toString());
+						setMaxFailedPwForService(maxFailCount);
+					} catch (NumberFormatException e) {
+
+					}
+
 				}
 			});
 
@@ -128,9 +145,8 @@ public class SettingActivity extends DeviceAdminReceiver {
 							if (maxFailCount <= maxFailed1) {
 								Toast.makeText(
 										Controller.this,
-										"WARNING: This number must be strictly greater than one that triggers camera and GPS service above",
+										"WARNING: This number must be strictly greater than number above",
 										Toast.LENGTH_SHORT).show();
-								mMaxFailedPw2.setText("");
 							}
 						}
 						setMaxFailedPwForWipe(maxFailCount);
@@ -141,48 +157,57 @@ public class SettingActivity extends DeviceAdminReceiver {
 
 			// email.setOnClickListener(mMaxFailedPw1Listener);
 			// emailPass.setOnClickListener(mMaxFailedPw1Listener);
+			mMaxFailedPw1.clearFocus();
+			mMaxFailedPw2.clearFocus();
+			email.clearFocus();
+			emailPass.clearFocus();
 			mActivateBtn.setOnClickListener(mActivateBtnListener);
 
-			// enable admin on the device
-			// enableAdmin();
 		}
 
 		// let the user to set new password upon first launch of the application
-		private void setNewPassOnFirstLaunch() {
-
-			Intent intent = new Intent(
-					DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
-			startActivityForResult(intent, SET_PASS);
-		}
+		// private void setNewPassOnFirstLaunch() {
+		//
+		// Intent intent = new Intent(
+		// DevicePolicyManager.ACTION_SET_NEW_PASSWORD);
+		// startActivityForResult(intent, SET_PASS);
+		// }
 
 		@Override
-		public void onBackPressed() {
-			// do something on back.
-			
-			SharedPreferences settings = getSharedPreferences(LSPRActivity.PREFS_NAME, 0);
-			boolean isFirstLaunch = settings.getBoolean("isFirstLaunch", true);
-			
-			if(isFirstLaunch){
-				return;
+		public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+			if (keyCode == KeyEvent.KEYCODE_BACK) {
+				SharedPreferences prefs = getSamplePreferences(this);
+				SharedPreferences settings = getSharedPreferences(
+						LSPRActivity.PREFS_NAME, 0);
+				boolean isFirstLaunch = settings.getBoolean("isFirstLaunch",
+						true);
+
+				if (isFirstLaunch) {
+					return false;
+				}
+				prefs.edit()
+						.putBoolean(PREF_BACK_FROM_SETTING_THRU_BACK_BTN, true)
+						.commit();
 			}
+			return super.onKeyDown(keyCode, event);
 		}
 
 		// let the user set max number failed attempts
 		void setMaxFailedPwForWipe(int length) {
 			SharedPreferences prefs = getSamplePreferences(this);
 			prefs.edit().putInt(PREF_MAX_FAILED_PW_FOR_WIPE, length).commit();
-			updatePolicies();
+			updatePasswordPolicies();
 		}
 
 		void setMaxFailedPwForService(int length) {
 			SharedPreferences prefs = getSamplePreferences(this);
 			prefs.edit().putInt(PREF_MAX_FAILED_PW_FOR_SERVICE, length)
 					.commit();
-			updatePolicies();
+			updatePasswordPolicies();
 		}
 
-		// update password policy
-		void updatePolicies() {
+		void updatePasswordPolicies() {
 			SharedPreferences prefs = getSamplePreferences(this);
 			final int pwQuality = prefs.getInt(PREF_PASSWORD_QUALITY,
 					DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED);
@@ -192,6 +217,7 @@ public class SettingActivity extends DeviceAdminReceiver {
 			final int maxFailedPwForWipe = prefs.getInt(
 					PREF_MAX_FAILED_PW_FOR_WIPE, 0);
 
+			// save max password failed attempts
 			boolean active = mDPM.isAdminActive(LSPRCN);
 			if (active) {
 				mDPM.setPasswordQuality(LSPRCN, pwQuality);
@@ -201,8 +227,119 @@ public class SettingActivity extends DeviceAdminReceiver {
 			}
 		}
 
+		boolean isValidEmailAddress(String aEmailAddress) {
+			Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
+			// Match the given string with the pattern
+			Matcher m = p.matcher(aEmailAddress);
+			// check whether match is found
+			boolean matchFound = m.matches();
+			if (matchFound)
+				return true;
+			else {
+				Toast.makeText(SettingActivity.Controller.this,
+						R.string.email_invalid, Toast.LENGTH_SHORT).show();
+				return false;
+			}
+		}
+
+		boolean isValidMaxFailedPasswordAttemptsValue() {
+
+			SharedPreferences prefs = getSamplePreferences(this);
+
+			int maxFailedPwForService = prefs.getInt(
+					PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
+			int maxFailedPwForWipe = prefs.getInt(PREF_MAX_FAILED_PW_FOR_WIPE,
+					0);
+
+			if (maxFailedPwForService < maxFailedPwForWipe) {
+				return true;
+			} else {
+				Toast.makeText(SettingActivity.Controller.this,
+						R.string.invalid_attempts_value, Toast.LENGTH_SHORT)
+						.show();
+				return false;
+			}
+		}
+
+		private boolean settingFieldsEmpty() {
+
+			SharedPreferences prefs = getSamplePreferences(this);
+
+			String emailText = email.getText().toString();
+			String emailPassword = emailPass.getText().toString();
+			int maxFailedPwForService = prefs.getInt(
+					PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
+			int maxFailedPwForWipe = prefs.getInt(PREF_MAX_FAILED_PW_FOR_WIPE,
+					0);
+
+			if (emailText.isEmpty() || emailPassword.isEmpty()
+					|| maxFailedPwForService == 0 || maxFailedPwForWipe == 0)
+				return true;
+			else
+				return false;
+		}
+
+		// update password policy
+		boolean saveSettings() {
+			SharedPreferences prefs = getSamplePreferences(this);
+
+			// validate and save email and password
+
+			String emailText = email.getText().toString();
+			String emailPassword = emailPass.getText().toString();
+
+			if (isValidEmailAddress(emailText)
+					&& isValidMaxFailedPasswordAttemptsValue()) {
+				prefs.edit().putString(PREF_EMAIL, emailText).commit();
+				prefs.edit().putString(PREF_EMAIL_PASS, emailPassword).commit();
+				// save password policy
+				updatePasswordPolicies();
+				return true;
+			} else {
+
+				return false;
+			}
+
+		}
+
+		private void populateFields() {
+
+			SharedPreferences prefs = getSamplePreferences(this);
+			final int pwQuality = prefs.getInt(PREF_PASSWORD_QUALITY,
+					DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED);
+			// final int pwLength = prefs.getInt(PREF_PASSWORD_LENGTH, 0);
+			final int maxFailedPwForService = prefs.getInt(
+					PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
+			final int maxFailedPwForWipe = prefs.getInt(
+					PREF_MAX_FAILED_PW_FOR_WIPE, 0);
+			String emailText = prefs.getString(PREF_EMAIL, "email@domain.com");
+			String emailPassword = prefs.getString(PREF_EMAIL_PASS,
+					"email_password");
+
+			// populate fields
+			mMaxFailedPw1.setText(Integer.toString(maxFailedPwForService));
+			mMaxFailedPw2.setText(Integer.toString(maxFailedPwForWipe));
+			email.setText(emailText);
+			emailPass.setText(emailPassword);
+
+		}
+
 		@Override
 		protected void onResume() {
+
+			SharedPreferences settings = getSharedPreferences(
+					LSPRActivity.PREFS_NAME, 0);
+			boolean isFirstLaunch = settings.getBoolean("isFirstLaunch", true);
+
+			if (!isFirstLaunch) {
+				populateFields();
+			}
+
+			mMaxFailedPw1.clearFocus();
+			mMaxFailedPw2.clearFocus();
+			email.clearFocus();
+			emailPass.clearFocus();
+
 			super.onResume();
 		}
 
@@ -255,7 +392,7 @@ public class SettingActivity extends DeviceAdminReceiver {
 		void setPasswordQuality(int quality) {
 			SharedPreferences prefs = getSamplePreferences(this);
 			prefs.edit().putInt(PREF_PASSWORD_QUALITY, quality).commit();
-			updatePolicies();
+			updatePasswordPolicies();
 		}
 
 		// private OnClickListener mEnableListener = new OnClickListener() {
@@ -270,6 +407,10 @@ public class SettingActivity extends DeviceAdminReceiver {
 		// };
 
 		private void goBackToMain() {
+			SharedPreferences prefs = getSamplePreferences(this);
+			prefs.edit()
+					.putBoolean(PREF_BACK_FROM_SETTING_THRU_BACK_BTN, false)
+					.commit();
 			setResult(RESULT_OK);
 			finish();
 		}
@@ -278,13 +419,18 @@ public class SettingActivity extends DeviceAdminReceiver {
 
 			public void onClick(View v) {
 
-				boolean active = mDPM.isAdminActive(LSPRCN);
-				if (active) {
-					updatePolicies();
-					Log.e(TAG1,
-							"Here trigger the failedPasswordMonitor Service");
-					goBackToMain();
-					
+				// if any of the fields is empty
+				if (settingFieldsEmpty()) {
+					Toast.makeText(SettingActivity.Controller.this,
+							R.string.field_empty_warning, Toast.LENGTH_SHORT)
+							.show();
+				} else {
+					boolean active = mDPM.isAdminActive(LSPRCN);
+					if (active) {
+						if (saveSettings()) {
+							goBackToMain();
+						}
+					}
 				}
 			}
 		};

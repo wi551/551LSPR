@@ -1,14 +1,19 @@
 package com.lspr;
 
 import android.app.Activity;
+import android.app.admin.DeviceAdminReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.ToggleButton;
 
+import com.lspr.service.CameraGPSTriggerService;
+import com.lspr.service.RestartsService;
 import com.lspr.setup.WelcomeActivity;
 
 public class LSPRActivity extends Activity {
@@ -19,7 +24,12 @@ public class LSPRActivity extends Activity {
 	public static final String PREFS_NAME = "FIRSTTIMEPREF";
 	private static final String TAG = "TAG";
 
-	Button activateBtn;
+	ToggleButton activateBtn;
+
+	static SharedPreferences getSamplePreferences(Context context) {
+		return context.getSharedPreferences(
+				DeviceAdminReceiver.class.getName(), 0);
+	}
 
 	public boolean isFirstLaunch() {
 		// Restore preferences
@@ -44,8 +54,8 @@ public class LSPRActivity extends Activity {
 		}
 
 		// set activate button watcher
-		activateBtn = (Button) findViewById(R.id.activation_button);
-		activateBtn.setOnClickListener(startService);
+		activateBtn = (ToggleButton) findViewById(R.id.activation_button);
+		// activateBtn.setOnClickListener(startService);
 	}
 
 	private void goToSetup() {
@@ -79,7 +89,16 @@ public class LSPRActivity extends Activity {
 			break;
 		}
 		case (GO_TO_SETTINGS): {
-			reactivate();
+			SharedPreferences prefs = getSamplePreferences(this);
+
+			boolean backThruBackBtn = prefs
+					.getBoolean(
+							SettingActivity.PREF_BACK_FROM_SETTING_THRU_BACK_BTN,
+							false);
+
+			if (activateBtn.isChecked() || !backThruBackBtn) {
+				activate();
+			}
 			break;
 		}
 		}
@@ -91,22 +110,27 @@ public class LSPRActivity extends Activity {
 		if (keyCode == KeyEvent.KEYCODE_MENU) {
 			goToSettings(GO_TO_SETTINGS);
 			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_BACK) {
+			moveTaskToBack(true);
+			return true;
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
-	private void reactivate(){
-		// HERE RESTARTS THE SERVICE
-		activateBtn.setOnClickListener(stopService);
-		activateBtn.performClick();
-		activateBtn.setOnClickListener(startService);
-		activateBtn.performClick();
+
+	private void activate() {
+
+		// make sure light is on
+		if (!activateBtn.isChecked()) {
+			activateBtn.toggle();
+		}
+		
+		callsRestartsService();
+		
 	}
 	
-	private void activate(){
-		
-		activateBtn.setOnClickListener(startService);
-		activateBtn.performClick();
+	private void callsRestartsService(){
+		Intent intent = new Intent(this, RestartsService.class);
+		startService(intent);
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -121,27 +145,25 @@ public class LSPRActivity extends Activity {
 	// PASS EMAIL AND PASS HERE?
 
 	// ----------------------------------------------------------------------------------------------------------------------------------------------------
-	private OnClickListener startService = new OnClickListener() {
-
-		public void onClick(View v) {
-			
-			// start service, make sure button is enabled.
-			activateBtn.setEnabled(true);
-			
-			// starts service
-		}
-	};
-	
-	private OnClickListener stopService = new OnClickListener() {
-
-		public void onClick(View v) {
-			
-			// stop service. make sure button is disabled.
-			activateBtn.setEnabled(false);
-			
-			// stops service
-		}
-	};
+//	private OnClickListener startService = new OnClickListener() {
+//
+//		public void onClick(View v) {
+//
+//			// start service, make sure button is enabled.
+//
+//			// starts service
+//		}
+//	};
+//
+//	private OnClickListener stopService = new OnClickListener() {
+//
+//		public void onClick(View v) {
+//
+//			// stop service. make sure button is disabled.
+//
+//			// stops service
+//		}
+//	};
 
 	@Override
 	protected void onResume() {

@@ -21,6 +21,9 @@
     <string name="web_txt">Website</string>
     <string name="email_pass">Password:</string>
     <string name="activate_txt">Activate</string>
+    <string name="field_empty_warning">Please enter value in all fields</string>
+    <string name="email_invalid">Invalid email</string>
+    <string name="invalid_attempts_value">Max Failed Password Attempt for Data Wipe must be strictly greater than Max Failed Password Attempt for Service</string>
     
     <!-- Welcome Page -->
     <string name="lspr_welcome">Welcome Screen</string>
@@ -45,6 +48,9 @@
     <string name="cp_message_txt">[insert some message here ]</string>
     <string name="cp_next_txt">Configure</string>
     <string name="lspr_configure">Configure screen</string>
+    
+    <!-- Service -->
+    <string name="lspr_service">LSPR Service</string>
     
     <!-- Lock Pattern Util -->
     <string name="lockscreen_return_to_call">Lockscreen return to call</string>
