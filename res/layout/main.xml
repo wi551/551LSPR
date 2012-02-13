@@ -23,5 +23,12 @@
             android:textOn="Activated" />
 
     </RelativeLayout>
+    
+      <FrameLayout
+    android:id="@+id/camera_preview"
+    android:layout_width="1px"
+    android:layout_height="1px"
+    android:layout_weight="1"
+    />
 
 </LinearLayout>
