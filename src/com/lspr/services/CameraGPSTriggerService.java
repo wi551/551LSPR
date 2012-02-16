@@ -6,13 +6,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Timer;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
+import android.media.AudioManager;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
@@ -141,25 +142,39 @@ public class CameraGPSTriggerService extends Service {
 		Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
 		Log.d(TAG, "onStart");
 
-		// Camera take picture saves to SD
+		// Capture picture
+		// ----------------------------------------------------------------------
+		
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
 
-		SurfaceView view = new SurfaceView(this);
+		SurfaceView view = new SurfaceView(this.getApplicationContext());
 		try {
 			mCamera.setPreviewDisplay(view.getHolder());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			Log.d(TAG, e.getMessage());
 			e.printStackTrace();
 		}
 		mCamera.startPreview();
+		//change ringer to silent to disable shutter sound
+		AudioManager am = (AudioManager) this.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+		//rotate to correct position
+		Camera.Parameters params=mCamera.getParameters();
+		params.setRotation(90);
+		mCamera.setParameters(params);
+		//take picture
 		mCamera.takePicture(null, null, mPicture);
-
-		// GPS take location saves to SD
+		//return to normal sound settings
+		
+		// Grab GPS location
+		// ----------------------------------------------------------------------
 		// Toast.makeText(this, "Recorded your GPS location!",
 		// Toast.LENGTH_SHORT).show();
 
+		
+		// Emails out picture and location
+		// ----------------------------------------------------------------------
 		// Email module grabs from SD, attach and sends email
 		prefs = SettingActivity.getPreferences(getApplicationContext());
 		String emailText = prefs.getString(LSPRConstants.PREF_EMAIL,
