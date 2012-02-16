@@ -9,9 +9,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
+import android.media.AudioManager;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
@@ -80,9 +82,7 @@ public class CameraService extends Service{
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
-	private Timer timer = new Timer();
 	private Camera mCamera;
-	private CameraPreview mPreview;
 	// picture call back start
 	private PictureCallback mPicture = new PictureCallback() {
 
@@ -142,7 +142,7 @@ public class CameraService extends Service{
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
 
-		SurfaceView view = new SurfaceView(this);
+		SurfaceView view = new SurfaceView(this.getApplicationContext());
 		try {
 			mCamera.setPreviewDisplay(view.getHolder());
 		} catch (IOException e) {
@@ -150,7 +150,14 @@ public class CameraService extends Service{
 			e.printStackTrace();
 		}
 		mCamera.startPreview();
+		//change ringer to silent to disable shutter sound
+		AudioManager am = (AudioManager) this.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+	
+		am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+		//take picture 
 		mCamera.takePicture(null, null, mPicture);
+		//return to normal sound settings
+		
 
 	}
 }
