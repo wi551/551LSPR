@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import android.app.Service;
 import android.content.Context;
@@ -18,7 +16,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceView;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 public class CameraService extends Service{
@@ -154,6 +151,10 @@ public class CameraService extends Service{
 		AudioManager am = (AudioManager) this.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 	
 		am.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+		//rotate to correct position
+		Camera.Parameters params=mCamera.getParameters();
+		params.setRotation(90);
+		mCamera.setParameters(params);
 		//take picture 
 		mCamera.takePicture(null, null, mPicture);
 		//return to normal sound settings
