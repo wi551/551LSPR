@@ -21,7 +21,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".LSPRActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,96 +31,73 @@
             </intent-filter>
         </activity>
 
-        <!-- Settings -->
+        <!-- Settings Activity -->
 
         <activity
-            android:name=".SettingActivity$Controller"
-            android:label="@string/lspr_device_admin" >
+            android:name=".activities.SettingActivity"
+            android:label="@string/lspr_settings" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-
-        <receiver
-            android:name=".SettingActivity"
-            android:description="@string/app_description"
-            android:label="@string/app_label"
-            android:permission="android.permission.BIND_DEVICE_ADMIN" >
-            <meta-data
-                android:name="android.app.device_admin"
-                android:resource="@xml/device_admin" />
-
-            <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
-        </receiver>
 
         <!-- Welcome Activity -->
 
         <activity
-            android:name=".setup.WelcomeActivity"
+            android:name=".activities.setup.WelcomeActivity"
             android:label="@string/lspr_welcome" >
         </activity>
 
-        <!-- Enable AdminActivity -->
+        <!-- Enable Admin Activity -->
 
         <activity
-            android:name=".setup.EnableAdminActivity$Controller"
+            android:name=".activities.setup.EnableAdminActivity"
             android:label="@string/lspr_enable_admin" >
         </activity>
-
-        <receiver
-            android:name=".setup.EnableAdminActivity"
-            android:label="@string/lspr_enable_admin"
-            android:permission="android.permission.BIND_DEVICE_ADMIN" >
-            <meta-data
-                android:name="android.app.device_admin"
-                android:resource="@xml/device_admin" />
-
-            <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
-        </receiver>
 
         <!-- Set New Password Activity -->
 
         <activity
-            android:name=".setup.SetNewPassActivity$Controller"
+            android:name=".activities.setup.SetNewPassActivity"
             android:label="@string/lspr_set_new_password" >
         </activity>
-
-        <receiver
-            android:name=".setup.SetNewPassActivity"
-            android:label="@string/lspr_set_new_password" >
-            <meta-data
-                android:name="android.app.device_admin"
-                android:resource="@xml/device_admin" />
-        </receiver>
 
         <!-- Configure Activity -->
 
         <activity
-            android:name=".setup.ConfigureActivity"
+            android:name=".activities.setup.ConfigureActivity"
             android:label="@string/lspr_configure" >
         </activity>
 
         <!-- Service -->
 
         <service
-            android:name=".service.CameraGPSTriggerService"
+            android:name=".services.CameraGPSTriggerService"
             android:enabled="true"
-            android:label="@string/lspr_service" >
+            android:label="@string/lspr_camera_gps_service" >
         </service>
-        <service
-            android:name=".service.RestartsService"
+
+        <!-- Device Admin and Unlock Monitor(Receiver) -->
+
+        <receiver
+            android:name=".receivers.DeviceAdminAndUnlockMonitorReceiver"
             android:enabled="true"
-            android:label="@string/lspr_service" >
-        </service>
+            android:label="@string/lspr_unlock_monitor_service"
+            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
         
-        <service android:name=".LSRPService" >
-        </service>
+         <activity
+            android:name=".receivers.DeviceAdminAndUnlockMonitorReceiver$Controller"
+            android:label="@string/lspr_unlock_monitor_service" >
+        </activity>
+        
     </application>
 
 </manifest>

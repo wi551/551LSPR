@@ -11,6 +11,7 @@
     <string name="app_description">An app that helps recover stolen phones.</string>
         
 	<!-- Settings -->
+	<string name="lspr_settings">Settings</string>
     <string name="setting_txt">Setting</string>
     <string name="rst_pw_txt">Reset Password</string>
     <string name="max_failed_pw1_txt">Max failed password attempt to trigger camera and GPS services</string>
@@ -28,29 +29,30 @@
     <!-- Welcome Page -->
     <string name="lspr_welcome">Welcome Screen</string>
     <string name="welcome_title_txt">Welcome!</string>
-    <string name="welcome_message_txt">[insert some welcome message here ]</string>
+    <string name="welcome_message_txt">Stolen Phone Recovery is an app that aims to recover stolen phones by capturing the thief\'s picture and GPS location, which are then sent to an email designated by you. Please complete this setup to start using this app.</string>
     <string name="welcome_next_txt">Let\'s get started!</string>
     
     <!-- Enable Admin Page -->
-    <string name="eap_title_txt">Enable Admin</string>
-    <string name="eap_message_txt">[insert some message here ]</string>
+    <string name="eap_title_txt">Enable Admin(Step 1)</string>
+    <string name="eap_message_txt">To allow this app to monitor unlock attempts, please enable administrator role for this app.</string>
     <string name="eap_next_txt">Enable Admin</string>
     <string name="lspr_enable_admin">Enable Admin Screen</string>
     
     <!-- Set New Password Page -->
-    <string name="snp_title_txt">Set New Password</string>
-    <string name="snp_message_txt">[insert some message here ]</string>
+    <string name="snp_title_txt">Set New Password(Step 2)</string>
+    <string name="snp_message_txt">To strengthen security, please set a new password for your device.</string>
     <string name="snp_next_txt">Set New Password</string>
     <string name="lspr_set_new_password">Set New Password Screen</string>
     
     <!-- Configure Page -->
-    <string name="cp_title_txt">Configure</string>
-    <string name="cp_message_txt">[insert some message here ]</string>
-    <string name="cp_next_txt">Configure</string>
+    <string name="cp_title_txt">Configure(Step 3)</string>
+    <string name="cp_message_txt">You\'re almost there! Please continue to configure the core settings for this app.</string>
+    <string name="cp_next_txt">Next</string>
     <string name="lspr_configure">Configure screen</string>
     
-    <!-- Service -->
-    <string name="lspr_service">LSPR Service</string>
+    <!-- Unlock Monitor and Device Admin -->
+    <string name="lspr_unlock_monitor_service">Device Admin and Unlock Monitor Service</string>
+    <string name="lspr_camera_gps_service">Camera and GPS Service</string>
     
     <!-- Lock Pattern Util -->
     <string name="lockscreen_return_to_call">Lockscreen return to call</string>

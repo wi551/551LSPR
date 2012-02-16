@@ -1,4 +1,4 @@
-package com.lspr;
+package com.lspr.modules.mail;
  
 import java.util.Date; 
 import java.util.Properties; 

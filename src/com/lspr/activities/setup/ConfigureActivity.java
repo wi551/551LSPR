@@ -1,4 +1,12 @@
-package com.lspr.setup;
+/*
+ * author :thomasloh
+ * date: Feb 12
+ * Description: Fourth screen of the app. Shows a configure message. 
+ * 
+ * 
+ */
+
+package com.lspr.activities.setup;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -34,11 +42,13 @@ public class ConfigureActivity extends Activity {
 	return;
 	}
 
+	// Go back to setup's main screen
 	private void goBackToWelcome(){
 		setResult(RESULT_OK);
 		finish();
 	}
 	
+	// Listener for configure button
 	private OnClickListener nextBtnListener = new OnClickListener() {
       public void onClick(View v) {
     	  
