@@ -1,3 +1,10 @@
+/*
+ * author :thomasloh
+ * date: Feb 12
+ * Description: Device admin that deals with passwords stuffs and monitors unlock attempts.
+ * 
+ */
+
 package com.lspr.receivers;
 
 import android.app.Activity;
