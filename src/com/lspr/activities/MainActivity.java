@@ -101,10 +101,12 @@ public class MainActivity extends Activity {
 			// if PREF_BACK_FROM_SETTING_THRU_BACK_BTN is true, means the user
 			// hit the back button
 			// else if false, means the user hit the activate button
-			
+
 			// the user hit activate
 			if (!backThruBackBtn) {
 				activateBtn();
+				setUnlockMonitorTo(getUnlockMonitor(),
+						PackageManager.COMPONENT_ENABLED_STATE_DEFAULT);
 			}
 			break;
 		}
@@ -146,7 +148,8 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			goToSettings(LSPRConstants.GO_TO_SETTINGS); // If hit menu, go to Settings page
+			goToSettings(LSPRConstants.GO_TO_SETTINGS); // If hit menu, go to
+														// Settings page
 			return true;
 		} else if (keyCode == KeyEvent.KEYCODE_BACK) {
 			moveTaskToBack(true); // If hit back, go to phone Home
@@ -154,12 +157,20 @@ public class MainActivity extends Activity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
 	// Enable/Disable Unlock Monitor Receiver
-	private void setUnlockMonitorTo(ComponentName receiver, int status){
-		getPackageManager().setComponentEnabledSetting(receiver,
-				status,
+	private void setUnlockMonitorTo(ComponentName receiver, int status) {
+		getPackageManager().setComponentEnabledSetting(receiver, status,
 				PackageManager.DONT_KILL_APP);
+	}
+
+	// Grab the unlock monitor receiver
+	private ComponentName getUnlockMonitor() {
+
+		ComponentName receiver = new ComponentName(MainActivity.this,
+				DeviceAdminAndUnlockMonitorReceiver.class);
+
+		return receiver;
 	}
 
 	// Listener for the activate button. ON = Turn on unlock monitor. OFF = Turn
@@ -168,24 +179,21 @@ public class MainActivity extends Activity {
 
 		public void onClick(View v) {
 
-			// Grab the unlock monitor receiver
-			ComponentName receiver = new ComponentName(MainActivity.this,
-					DeviceAdminAndUnlockMonitorReceiver.class);
-
 			// If intention is to activate, turn on the receiver
 			if (activateBtn.isChecked()) {
-				
+
 				// get app preference and grab max failed password for wipe
 				prefs = SettingActivity.getPreferences(getApplicationContext());
 				final int maxFailedPwForWipe = prefs.getInt(
 						LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, 0);
-				
+
 				// Restore max failed password for wipe from app preference
 				SettingActivity.mDPM.setMaximumFailedPasswordsForWipe(
 						SettingActivity.LSPRCN, maxFailedPwForWipe);
-				
+
 				// Enable unlock monitor
-				setUnlockMonitorTo(receiver, PackageManager.COMPONENT_ENABLED_STATE_DEFAULT);
+				setUnlockMonitorTo(getUnlockMonitor(),
+						PackageManager.COMPONENT_ENABLED_STATE_DEFAULT);
 
 				// Intent serviceIntent = new Intent(getApplicationContext(),
 				// CameraGPSTriggerService.class);
@@ -195,9 +203,10 @@ public class MainActivity extends Activity {
 				// Update max failed password for wipe to 0
 				SettingActivity.mDPM.setMaximumFailedPasswordsForWipe(
 						SettingActivity.LSPRCN, 0);
-				
+
 				// Disable unlock monitor
-				setUnlockMonitorTo(receiver, PackageManager.COMPONENT_ENABLED_STATE_DISABLED);
+				setUnlockMonitorTo(getUnlockMonitor(),
+						PackageManager.COMPONENT_ENABLED_STATE_DISABLED);
 			}
 
 		}

@@ -19,12 +19,13 @@ import android.util.Log;
 import android.view.SurfaceView;
 import android.widget.Toast;
 
+import com.lspr.activities.SettingActivity;
 import com.lspr.constants.LSPRConstants;
 import com.lspr.modules.mail.Mail;
 
 public class CameraGPSTriggerService extends Service {
-	
-	private static final String TAG = "MyService";
+
+	private static final String TAG = "Service";
 	private SharedPreferences prefs;
 
 	public CameraGPSTriggerService() {
@@ -90,7 +91,6 @@ public class CameraGPSTriggerService extends Service {
 
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
-	private Timer timer = new Timer();
 	private Camera mCamera;
 	// picture call back start
 	private PictureCallback mPicture = new PictureCallback() {
@@ -127,8 +127,6 @@ public class CameraGPSTriggerService extends Service {
 		Toast.makeText(this, "My Service Created", Toast.LENGTH_LONG).show();
 		Log.d(TAG, "onCreate");
 
-		this.prefs = getApplicationContext().getSharedPreferences(
-				LSPRConstants.PREF_NAME, 0);
 	}
 
 	@Override
@@ -163,21 +161,16 @@ public class CameraGPSTriggerService extends Service {
 		// Toast.LENGTH_SHORT).show();
 
 		// Email module grabs from SD, attach and sends email
-		// SharedPreferences prefs = CameraGPSTriggerService
-		// .getSamplePreferences(getApplicationContext());
+		prefs = SettingActivity.getPreferences(getApplicationContext());
 		String emailText = prefs.getString(LSPRConstants.PREF_EMAIL,
 				"email@domain.com");
 		String emailPassword = prefs.getString(LSPRConstants.PREF_EMAIL_PASS,
 				"email_password");
 
 		sendMail(emailText, emailPassword);
-		Toast.makeText(
-				this,
-				"I emailed your picture and GPS location to the owner! You're doomed! =)",
-				Toast.LENGTH_SHORT).show();
-		
+
 		stopSelf();
-		
+
 	}
 
 	private void sendMail(String email, String pass) {
@@ -211,12 +204,14 @@ public class CameraGPSTriggerService extends Service {
 						.show();
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			Toast.makeText(
 					this,
 					"There was a problem sending the email.\nBody:"
 							+ m.getBody() + "\nSubject: " + m.getSubject()
 							+ "\nFrom: " + m.getFrom() + "\nUser: "
-							+ m.getUser() + "\nPass: " + m.getPass(),
+							+ m.getUser(), 
+//							+ "\nPass: " + m.getPass(),
 					Toast.LENGTH_LONG).show();
 
 		}

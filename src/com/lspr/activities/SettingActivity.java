@@ -192,7 +192,7 @@ public class SettingActivity extends Activity {
 	}
 
 	// Function to get app preference
-	static SharedPreferences getPreferences(Context context) {
+	public static SharedPreferences getPreferences(Context context) {
 		return context.getSharedPreferences(LSPRConstants.PREF_NAME, 0);
 	}
 
