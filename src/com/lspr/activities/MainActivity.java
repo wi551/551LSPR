@@ -82,11 +82,6 @@ public class MainActivity extends Activity {
 			// ACTIVATE AT MAIN
 			activateBtn();
 
-			// ACTIVATE DPM
-			Intent intent = new Intent(this,
-					DeviceAdminAndUnlockMonitorReceiver.Controller.class);
-			startActivityForResult(intent, LSPRConstants.ACTIVATE_DPM);
-
 			break;
 		}
 		case (LSPRConstants.ACTIVATE_DPM): {

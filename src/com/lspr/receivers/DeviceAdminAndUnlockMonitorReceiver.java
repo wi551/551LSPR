@@ -27,7 +27,7 @@ public class DeviceAdminAndUnlockMonitorReceiver extends DeviceAdminReceiver {
 	static SharedPreferences getPreferences(Context context) {
 		return context.getSharedPreferences(LSPRConstants.PREF_NAME, 0);
 	}
-
+	
 	@Override
 	public void onPasswordFailed(Context context, Intent intent) {
 		
@@ -35,26 +35,15 @@ public class DeviceAdminAndUnlockMonitorReceiver extends DeviceAdminReceiver {
 		final int maxFailedPwForService = prefs.getInt(
 				LSPRConstants.PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
 
+		mDPM = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);		
 		int attempt = mDPM.getCurrentFailedPasswordAttempts();
 
-		if (attempt == maxFailedPwForService) {
+		if (attempt >= maxFailedPwForService) {
 //			Log.e(TAG, "Start Camera+GPS Service!");
-//			Intent serviceIntent = new Intent(context,
-//					CameraGPSTriggerService.class);
-//			context.startService(serviceIntent);
+			Intent serviceIntent = new Intent(context,
+					CameraGPSTriggerService.class);
+			context.startService(serviceIntent);
 		}
 	}
-
-	public static class Controller extends Activity {
-
-		@Override
-		protected void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-			setResult(RESULT_OK);
-			finish();
-		}
-
-	}
-
+	
 }
