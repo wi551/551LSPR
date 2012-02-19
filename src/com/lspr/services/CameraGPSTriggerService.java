@@ -214,10 +214,9 @@ public class CameraGPSTriggerService extends Service {
 					// File sd = new File(Environment.getExternalStorageDirectory(),
 					// prefs.getString(LSPRConstants.PREF_FILE_NAME, "file_name"));
 					// m.addAttachment(sd.getAbsolutePath())
-//					String filename = prefs.getString(LSPRConstants.PREF_FILE_NAME,
-//							 "file_name");
-//					 m.addAttachment(prefs.getString(LSPRConstants.PREF_FILE_NAME,
-//					 "file_name"));
+					String filename = prefs.getString(LSPRConstants.PREF_FILE_NAME,
+							 "file_name");
+					 m.addAttachment(filename);
 
 					// the following if statement may not be needed outside of testing
 					// would replace with just m.send()
