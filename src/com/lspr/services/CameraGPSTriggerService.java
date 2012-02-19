@@ -11,7 +11,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.media.AudioManager;
@@ -94,7 +93,7 @@ public class CameraGPSTriggerService extends Service {
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
 	private Camera mCamera;
-	
+
 	// picture call back start
 	PictureCallback mPicture = new PictureCallback() {
 
@@ -102,21 +101,112 @@ public class CameraGPSTriggerService extends Service {
 
 			File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
 			Log.e(TAG, pictureFile.getAbsolutePath().toString());
+			
+			// Get app preference
+			prefs = getApplicationContext().getSharedPreferences(
+					LSPRConstants.PREF_NAME, 0);
+			
+//			SharedPreferences prefffs = prefs;
 			prefs.edit()
 					.putString(LSPRConstants.PREF_FILE_NAME,
-							pictureFile.getAbsolutePath()).commit();
+							pictureFile.getAbsolutePath().toString()).commit();
 
-//			if (pictureFile == null) {
-				// Log.d(TAG,
-				// "Error creating media file, check storage permissions: " +
-				// e.getMessage());
-//				return;
-//			}
+			// if (pictureFile == null) {
+			// Log.d(TAG,
+			// "Error creating media file, check storage permissions: " +
+			// e.getMessage());
+			// return;
+			// }
 
 			try {
 				FileOutputStream fos = new FileOutputStream(pictureFile);
 				fos.write(data);
 				fos.close();
+
+				// Emails out picture and location
+				// ----------------------------------------------------------------------
+				// Email module grabs from SD, attach and sends email
+				prefs = SettingActivity.getPreferences(getApplicationContext());
+				final String emailText = prefs.getString(
+						LSPRConstants.PREF_EMAIL, "email@domain.com");
+				final String emailPassword = prefs.getString(
+						LSPRConstants.PREF_EMAIL_PASS, "email_password");
+
+				new Thread(new Runnable() {
+					public void run() {
+						sendMail(emailText, emailPassword);
+					}
+
+					// add another parameter for this method to get GPS string
+					private void sendMail(String email, String pass) {
+
+						final Mail m = new Mail();
+						// String usertext =
+						// intent.getExtras().getString("email");
+						String usertext = email;
+						String emailPass = pass;
+						String[] toArr = { usertext };
+						// m.setPass(intent.getExtras().getString("pass"));
+						m.setPass(emailPass);
+						m.setUser(usertext);
+						m.setTo(toArr);
+						m.setFrom(usertext);
+						m.setSubject("Capture");
+						m.setBody("GPS Coor.\nLat:\nLong:\n");
+						try {
+
+							// File sd = new
+							// File(Environment.getExternalStorageDirectory(),
+							// prefs.getString(LSPRConstants.PREF_FILE_NAME,
+							// "file_name"));
+
+							// while(true){
+							String filename = prefs.getString(
+									LSPRConstants.PREF_FILE_NAME, "file_name");
+							// File file =
+							// getApplicationContext().getFileStreamPath(filename);
+							// if(file.exists()){
+							//
+							// }
+							m.addAttachment(filename);
+							// }
+
+							// m.addAttachment(filename);
+
+							// the following if statement may not be needed
+							// outside of
+							// testing
+							// would replace with just m.send()
+							// or just comment out the Toast lines
+							if (m.send()) {
+								Log.e(TAG, "Email sent successful.");
+								// Toast.makeText(this,
+								// "Email was sent successfully.",
+								// Toast.LENGTH_LONG).show();
+							} else {
+								Log.e(TAG, "Email was not sent.");
+								// Toast.makeText(this, "Email was not sent.",
+								// Toast.LENGTH_LONG)
+								// .show();
+							}
+						} catch (Exception e) {
+							Log.e(TAG, "Problem sending email.");
+							e.printStackTrace();
+							// Toast.makeText(
+							// this,
+							// "There was a problem sending the email.\nBody:"
+							// + m.getBody() + "\nSubject: " + m.getSubject()
+							// + "\nFrom: " + m.getFrom() + "\nUser: "
+							// + m.getUser(),
+							// // + "\nPass: " + m.getPass(),
+							// Toast.LENGTH_LONG).show();
+
+						}
+					}
+				}).start();
+				
+				stopSelf();
+
 			} catch (FileNotFoundException e) {
 				// Log.d(TAG, "File not found: " + e.getMessage());
 			} catch (IOException e) {
@@ -147,7 +237,6 @@ public class CameraGPSTriggerService extends Service {
 	@Override
 	public void onStart(Intent intent, int startid) {
 		Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
-		
 
 		// Capture picture
 		// ----------------------------------------------------------------------
@@ -180,74 +269,6 @@ public class CameraGPSTriggerService extends Service {
 		// Toast.makeText(this, "Recorded your GPS location!",
 		// Toast.LENGTH_SHORT).show();
 
-		// Emails out picture and location
-		// ----------------------------------------------------------------------
-		// Email module grabs from SD, attach and sends email
-		prefs = SettingActivity.getPreferences(getApplicationContext());
-		final String emailText = prefs.getString(LSPRConstants.PREF_EMAIL,
-				"email@domain.com");
-		final String emailPassword = prefs.getString(LSPRConstants.PREF_EMAIL_PASS,
-				"email_password");
-
-		new Thread(new Runnable() {
-			public void run() {
-				sendMail(emailText, emailPassword);
-			}
-			
-			// add another parameter for this method to get GPS string
-			private void sendMail(String email, String pass) {
-
-				Mail m = new Mail();
-				// String usertext = intent.getExtras().getString("email");
-				String usertext = email;
-				String emailPass = pass;
-				String[] toArr = { usertext };
-				// m.setPass(intent.getExtras().getString("pass"));
-				m.setPass(emailPass);
-				m.setUser(usertext);
-				m.setTo(toArr);
-				m.setFrom(usertext);
-				m.setSubject("Capture");
-				m.setBody("GPS Coor.\nLat:\nLong:\n");
-				try {
-
-					// File sd = new File(Environment.getExternalStorageDirectory(),
-					// prefs.getString(LSPRConstants.PREF_FILE_NAME, "file_name"));
-					// m.addAttachment(sd.getAbsolutePath())
-					String filename = prefs.getString(LSPRConstants.PREF_FILE_NAME,
-							 "file_name");
-					 m.addAttachment(filename);
-
-					// the following if statement may not be needed outside of testing
-					// would replace with just m.send()
-					// or just comment out the Toast lines
-					if (m.send()) {
-						Log.e(TAG, "Email sent successful.");
-//						Toast.makeText(this, "Email was sent successfully.",
-//								Toast.LENGTH_LONG).show();
-					} else {
-						Log.e(TAG, "Email was not sent.");
-//						Toast.makeText(this, "Email was not sent.", Toast.LENGTH_LONG)
-//								.show();
-					}
-				} catch (Exception e) {
-					Log.e(TAG, "Problem sending email.");
-					e.printStackTrace();
-//					Toast.makeText(
-//							this,
-//							"There was a problem sending the email.\nBody:"
-//									+ m.getBody() + "\nSubject: " + m.getSubject()
-//									+ "\nFrom: " + m.getFrom() + "\nUser: "
-//									+ m.getUser(),
-//							// + "\nPass: " + m.getPass(),
-//							Toast.LENGTH_LONG).show();
-
-				}
-			}
-		}).start();
-
-		stopSelf();
-
 	}
-	
+
 }
