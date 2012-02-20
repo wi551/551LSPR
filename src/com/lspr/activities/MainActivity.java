@@ -45,6 +45,16 @@ public class MainActivity extends Activity {
 		this.prefs = getApplicationContext().getSharedPreferences(
 				LSPRConstants.PREF_NAME, 0);
 
+		
+		//this stores the directory of where pictures will be saved
+
+		prefs.edit()
+		.putString(LSPRConstants.PREF_PATH_NAME,
+				this.getApplicationContext().getFilesDir().getAbsolutePath()).commit();
+		
+		
+		
+		
 		// If this is the first launch of the app
 		if (isFirstLaunch()) {
 

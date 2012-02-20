@@ -53,43 +53,6 @@ public class CameraGPSTriggerService extends Service {
 		}
 	}
 
-	/** Create a File for saving an image or video */
-	private static File getOutputMediaFile(int type) {
-		// To be safe, you should check that the SDCard is mounted
-		// using Environment.getExternalStorageState() before doing this.
-
-		File mediaStorageDir = new File(
-				Environment
-						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-				"RecoveryPicturesNew");
-		// This location works best if you want the created images to be shared
-		// between applications and persist after your app has been uninstalled.
-
-		// Create the storage directory if it does not exist
-		if (!mediaStorageDir.exists()) {
-			if (!mediaStorageDir.mkdirs()) {
-				Log.d("MyCameraApp", "failed to create directory");
-				return null;
-			}
-		}
-
-		// Create a media file name
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
-				.format(new Date());
-		File mediaFile;
-		if (type == MEDIA_TYPE_IMAGE) {
-			mediaFile = new File(mediaStorageDir.getPath() + File.separator
-					+ "IMG_" + timeStamp + ".jpg");
-		} else if (type == MEDIA_TYPE_VIDEO) {
-			mediaFile = new File(mediaStorageDir.getPath() + File.separator
-					+ "VID_" + timeStamp + ".mp4");
-		} else {
-			return null;
-		}
-
-		return mediaFile;
-	}
-
 	public static final int MEDIA_TYPE_IMAGE = 1;
 	public static final int MEDIA_TYPE_VIDEO = 2;
 	private Camera mCamera;
@@ -99,27 +62,19 @@ public class CameraGPSTriggerService extends Service {
 
 		public void onPictureTaken(byte[] data, Camera camera) {
 
-			File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-			Log.e(TAG, pictureFile.getAbsolutePath().toString());
-			
 			// Get app preference
 			prefs = getApplicationContext().getSharedPreferences(
 					LSPRConstants.PREF_NAME, 0);
-			
-//			SharedPreferences prefffs = prefs;
-			prefs.edit()
-					.putString(LSPRConstants.PREF_FILE_NAME,
-							pictureFile.getAbsolutePath().toString()).commit();
+			// create unique file name
+			String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+					.format(new Date());
 
-			// if (pictureFile == null) {
-			// Log.d(TAG,
-			// "Error creating media file, check storage permissions: " +
-			// e.getMessage());
-			// return;
-			// }
+			final String FILENAME = "IMG_" + timeStamp + ".jpg";
 
 			try {
-				FileOutputStream fos = new FileOutputStream(pictureFile);
+
+				FileOutputStream fos = openFileOutput(FILENAME,
+						Context.MODE_PRIVATE);
 				fos.write(data);
 				fos.close();
 
@@ -154,24 +109,12 @@ public class CameraGPSTriggerService extends Service {
 						m.setSubject("Capture");
 						m.setBody("GPS Coor.\nLat:\nLong:\n");
 						try {
-
-							// File sd = new
-							// File(Environment.getExternalStorageDirectory(),
-							// prefs.getString(LSPRConstants.PREF_FILE_NAME,
-							// "file_name"));
-
-							// while(true){
-							String filename = prefs.getString(
-									LSPRConstants.PREF_FILE_NAME, "file_name");
-							// File file =
-							// getApplicationContext().getFileStreamPath(filename);
-							// if(file.exists()){
-							//
-							// }
-							m.addAttachment(filename);
-							// }
-
-							// m.addAttachment(filename);
+							//create exact path to picture
+							String path_to_picture = prefs.getString(
+									LSPRConstants.PREF_PATH_NAME, "file_path")
+									+ File.separator + FILENAME;
+							//attach picture
+							m.addAttachment(path_to_picture);
 
 							// the following if statement may not be needed
 							// outside of
@@ -204,7 +147,7 @@ public class CameraGPSTriggerService extends Service {
 						}
 					}
 				}).start();
-				
+
 				stopSelf();
 
 			} catch (FileNotFoundException e) {
