@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import android.app.Service;
 import android.content.Context;
@@ -13,13 +15,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.AudioManager;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.lspr.R;
 import com.lspr.activities.SettingActivity;
 import com.lspr.constants.LSPRConstants;
 import com.lspr.modules.Mail;
@@ -28,6 +39,12 @@ public class CameraGPSTriggerService extends Service {
 
 	private static final String TAG = "Service";
 	private SharedPreferences prefs;
+	private Location mloc;
+	private String gpsLat;
+	private String gpsLong;
+	private String networkLat;
+	private String networkLong;
+	private String mAddress;
 
 	public CameraGPSTriggerService() {
 		super();
@@ -101,12 +118,12 @@ public class CameraGPSTriggerService extends Service {
 
 			File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
 			Log.e(TAG, pictureFile.getAbsolutePath().toString());
-			
+
 			// Get app preference
 			prefs = getApplicationContext().getSharedPreferences(
 					LSPRConstants.PREF_NAME, 0);
-			
-//			SharedPreferences prefffs = prefs;
+
+			// SharedPreferences prefffs = prefs;
 			prefs.edit()
 					.putString(LSPRConstants.PREF_FILE_NAME,
 							pictureFile.getAbsolutePath().toString()).commit();
@@ -123,95 +140,257 @@ public class CameraGPSTriggerService extends Service {
 				fos.write(data);
 				fos.close();
 
+				// Grab GPS location
+				// ----------------------------------------------------------------------
+				// Toast.makeText(this, "Recorded your GPS location!",
+				// Toast.LENGTH_SHORT).show();
+				LocationManager mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+				Criteria criteria = new Criteria();
+				criteria.setAccuracy(Criteria.ACCURACY_FINE);
+				criteria.setAltitudeRequired(false);
+				criteria.setBearingRequired(false);
+				criteria.setCostAllowed(true);
+				criteria.setPowerRequirement(Criteria.POWER_LOW);
+
+				String provider = mlocManager.getBestProvider(criteria, true);
+
+//				mloc = mlocManager.getLastKnownLocation(provider);
+				// LocationListener mlocListener = new MyLocationListener();
+				// mlocManager.requestLocationUpdates(
+				// LocationManager.GPS_PROVIDER, 0, 0, mlocListener);
+
+				mlocManager.requestLocationUpdates(
+						LocationManager.GPS_PROVIDER, 0, // 1min
+						0, // 1km
+						gpslocationListener);
+
+				mlocManager.requestLocationUpdates(
+						LocationManager.NETWORK_PROVIDER, 0, 0,
+						networklocationListener);
+
+				// mloc = mlocManager.getLastKnownLocation(provider);
+
 				// Emails out picture and location
 				// ----------------------------------------------------------------------
 				// Email module grabs from SD, attach and sends email
-				prefs = SettingActivity.getPreferences(getApplicationContext());
-				final String emailText = prefs.getString(
-						LSPRConstants.PREF_EMAIL, "email@domain.com");
-				final String emailPassword = prefs.getString(
-						LSPRConstants.PREF_EMAIL_PASS, "email_password");
-
-				new Thread(new Runnable() {
-					public void run() {
-						sendMail(emailText, emailPassword);
-					}
-
-					// add another parameter for this method to get GPS string
-					private void sendMail(String email, String pass) {
-
-						final Mail m = new Mail();
-						// String usertext =
-						// intent.getExtras().getString("email");
-						String usertext = email;
-						String emailPass = pass;
-						String[] toArr = { usertext };
-						// m.setPass(intent.getExtras().getString("pass"));
-						m.setPass(emailPass);
-						m.setUser(usertext);
-						m.setTo(toArr);
-						m.setFrom(usertext);
-						m.setSubject("Capture");
-						m.setBody("GPS Coor.\nLat:\nLong:\n");
-						try {
-
-							// File sd = new
-							// File(Environment.getExternalStorageDirectory(),
-							// prefs.getString(LSPRConstants.PREF_FILE_NAME,
-							// "file_name"));
-
-							// while(true){
-							String filename = prefs.getString(
-									LSPRConstants.PREF_FILE_NAME, "file_name");
-							// File file =
-							// getApplicationContext().getFileStreamPath(filename);
-							// if(file.exists()){
-							//
-							// }
-							m.addAttachment(filename);
-							// }
-
-							// m.addAttachment(filename);
-
-							// the following if statement may not be needed
-							// outside of
-							// testing
-							// would replace with just m.send()
-							// or just comment out the Toast lines
-							if (m.send()) {
-								Log.e(TAG, "Email sent successful.");
-								// Toast.makeText(this,
-								// "Email was sent successfully.",
-								// Toast.LENGTH_LONG).show();
-							} else {
-								Log.e(TAG, "Email was not sent.");
-								// Toast.makeText(this, "Email was not sent.",
-								// Toast.LENGTH_LONG)
-								// .show();
-							}
-						} catch (Exception e) {
-							Log.e(TAG, "Problem sending email.");
-							e.printStackTrace();
-							// Toast.makeText(
-							// this,
-							// "There was a problem sending the email.\nBody:"
-							// + m.getBody() + "\nSubject: " + m.getSubject()
-							// + "\nFrom: " + m.getFrom() + "\nUser: "
-							// + m.getUser(),
-							// // + "\nPass: " + m.getPass(),
-							// Toast.LENGTH_LONG).show();
-
-						}
-					}
-				}).start();
-				
-				stopSelf();
 
 			} catch (FileNotFoundException e) {
 				// Log.d(TAG, "File not found: " + e.getMessage());
 			} catch (IOException e) {
 				// Log.d(TAG, "Error accessing file: " + e.getMessage());
 			}
+		}
+	};
+
+	private final LocationListener networklocationListener = new LocationListener() {
+		public void onLocationChanged(Location location) {
+			// Called when a new location is found by the network location
+			// provider.
+			// makeUseOfNewLocation(location);
+			double lat = location.getLatitude();
+			double lng = location.getLongitude();
+			networkLat = "" + lat;
+			networkLong = "" + lng;
+
+			prefs = SettingActivity.getPreferences(getApplicationContext());
+			final String emailText = prefs.getString(LSPRConstants.PREF_EMAIL,
+					"email@domain.com");
+			final String emailPassword = prefs.getString(
+					LSPRConstants.PREF_EMAIL_PASS, "email_password");
+
+			new Thread(new Runnable() {
+				public void run() {
+					sendMail(emailText, emailPassword, gpsLat, gpsLong,
+							networkLat, networkLong);
+				}
+
+				// add another parameter for this method to get GPS string
+				private void sendMail(String email, String pass, String gpsLat,
+						String gpsLong, String networkLat, String networkLong) {
+
+					final Mail m = new Mail();
+					// String usertext =
+					// intent.getExtras().getString("email");
+					String usertext = email;
+					String emailPass = pass;
+					String[] toArr = { usertext };
+					// m.setPass(intent.getExtras().getString("pass"));
+					m.setPass(emailPass);
+					m.setUser(usertext);
+					m.setTo(toArr);
+					m.setFrom(usertext);
+					m.setSubject("Capture");
+					m.setBody("GPS Coor.\ngpsLat: " + gpsLat + "Long:"
+							+ gpsLong + "\nnetworkLat:" + networkLat
+							+ "networkLong: " + networkLong);
+					try {
+
+						// File sd = new
+						// File(Environment.getExternalStorageDirectory(),
+						// prefs.getString(LSPRConstants.PREF_FILE_NAME,
+						// "file_name"));
+
+						// while(true){
+						String filename = prefs.getString(
+								LSPRConstants.PREF_FILE_NAME, "file_name");
+						// File file =
+						// getApplicationContext().getFileStreamPath(filename);
+						// if(file.exists()){
+						//
+						// }
+						m.addAttachment(filename);
+						// }
+
+						// m.addAttachment(filename);
+
+						// the following if statement may not be needed
+						// outside of
+						// testing
+						// would replace with just m.send()
+						// or just comment out the Toast lines
+						if (m.send()) {
+							Log.e(TAG, "Email sent successful.");
+							// Toast.makeText(this,
+							// "Email was sent successfully.",
+							// Toast.LENGTH_LONG).show();
+						} else {
+							Log.e(TAG, "Email was not sent.");
+							// Toast.makeText(this, "Email was not sent.",
+							// Toast.LENGTH_LONG)
+							// .show();
+						}
+					} catch (Exception e) {
+						Log.e(TAG, "Problem sending email.");
+						e.printStackTrace();
+						// Toast.makeText(
+						// this,
+						// "There was a problem sending the email.\nBody:"
+						// + m.getBody() + "\nSubject: " + m.getSubject()
+						// + "\nFrom: " + m.getFrom() + "\nUser: "
+						// + m.getUser(),
+						// // + "\nPass: " + m.getPass(),
+						// Toast.LENGTH_LONG).show();
+
+					}
+				}
+			}).start();
+
+			stopSelf();
+
+		}
+
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+		}
+
+		public void onProviderEnabled(String provider) {
+		}
+
+		public void onProviderDisabled(String provider) {
+		}
+	};
+
+	private final LocationListener gpslocationListener = new LocationListener() {
+		public void onLocationChanged(Location location) {
+			// updateWithNewLocation(location);
+			double lat = location.getLatitude();
+			double lng = location.getLongitude();
+			gpsLat = "" + lat;
+			gpsLong = "" + lng;
+
+			prefs = SettingActivity.getPreferences(getApplicationContext());
+			final String emailText = prefs.getString(LSPRConstants.PREF_EMAIL,
+					"email@domain.com");
+			final String emailPassword = prefs.getString(
+					LSPRConstants.PREF_EMAIL_PASS, "email_password");
+
+			new Thread(new Runnable() {
+				public void run() {
+					sendMail(emailText, emailPassword, gpsLat, gpsLong,
+							networkLat, networkLong);
+				}
+
+				// add another parameter for this method to get GPS string
+				private void sendMail(String email, String pass, String gpsLat,
+						String gpsLong, String networkLat, String networkLong) {
+
+					final Mail m = new Mail();
+					// String usertext =
+					// intent.getExtras().getString("email");
+					String usertext = email;
+					String emailPass = pass;
+					String[] toArr = { usertext };
+					// m.setPass(intent.getExtras().getString("pass"));
+					m.setPass(emailPass);
+					m.setUser(usertext);
+					m.setTo(toArr);
+					m.setFrom(usertext);
+					m.setSubject("Capture");
+					m.setBody("GPS Coor.\ngpsLat: " + gpsLat + "Long:"
+							+ gpsLong + "\nnetworkLat:" + networkLat
+							+ "networkLong: " + networkLong);
+					try {
+
+						// File sd = new
+						// File(Environment.getExternalStorageDirectory(),
+						// prefs.getString(LSPRConstants.PREF_FILE_NAME,
+						// "file_name"));
+
+						// while(true){
+						String filename = prefs.getString(
+								LSPRConstants.PREF_FILE_NAME, "file_name");
+						// File file =
+						// getApplicationContext().getFileStreamPath(filename);
+						// if(file.exists()){
+						//
+						// }
+						m.addAttachment(filename);
+						// }
+
+						// m.addAttachment(filename);
+
+						// the following if statement may not be needed
+						// outside of
+						// testing
+						// would replace with just m.send()
+						// or just comment out the Toast lines
+						if (m.send()) {
+							Log.e(TAG, "Email sent successful.");
+							// Toast.makeText(this,
+							// "Email was sent successfully.",
+							// Toast.LENGTH_LONG).show();
+						} else {
+							Log.e(TAG, "Email was not sent.");
+							// Toast.makeText(this, "Email was not sent.",
+							// Toast.LENGTH_LONG)
+							// .show();
+						}
+					} catch (Exception e) {
+						Log.e(TAG, "Problem sending email.");
+						e.printStackTrace();
+						// Toast.makeText(
+						// this,
+						// "There was a problem sending the email.\nBody:"
+						// + m.getBody() + "\nSubject: " + m.getSubject()
+						// + "\nFrom: " + m.getFrom() + "\nUser: "
+						// + m.getUser(),
+						// // + "\nPass: " + m.getPass(),
+						// Toast.LENGTH_LONG).show();
+
+					}
+				}
+			}).start();
+
+			stopSelf();
+		}
+
+		public void onProviderDisabled(String provider) {
+		}
+
+		public void onProviderEnabled(String provider) {
+		}
+
+		public void onStatusChanged(String provider, int status, Bundle extras) {
 		}
 	};
 
@@ -264,11 +443,5 @@ public class CameraGPSTriggerService extends Service {
 		mCamera.takePicture(null, null, mPicture);
 		// return to normal sound settings
 
-		// Grab GPS location
-		// ----------------------------------------------------------------------
-		// Toast.makeText(this, "Recorded your GPS location!",
-		// Toast.LENGTH_SHORT).show();
-
 	}
-
 }
