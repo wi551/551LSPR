@@ -18,11 +18,15 @@
     <string name="max_failed_pw2_txt">Max failed password attempt to trigger data wipe</string>
     <string name="dm_txt">Delivery</string>
     <string name="email_txt">Email:</string>
+    <string name="prompt_email_txt">email address</string>
+    <string name="prompt_emailpass_txt">email password</string>
+    <string name="prompt_emailpassv_txt">      (again)</string>
     <string name="text_txt">Text</string>
     <string name="web_txt">Website</string>
     <string name="email_pass">Password:</string>
     <string name="activate_txt">Activate</string>
     <string name="field_empty_warning">Please enter value in all fields</string>
+    <string name="password_dont_match">Passwords do not match.</string>
     <string name="email_invalid">Invalid email</string>
     <string name="invalid_attempts_value">Max Failed Password Attempt for Data Wipe must be strictly greater than Max Failed Password Attempt for Service</string>
     

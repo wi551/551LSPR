@@ -7,15 +7,24 @@
 
 package com.lspr.activities;
 
+import java.io.IOException;
+
 import android.app.Activity;
+import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.media.AudioManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.lspr.R;
@@ -26,8 +35,9 @@ import com.lspr.receivers.DeviceAdminAndUnlockMonitorReceiver;
 public class MainActivity extends Activity {
 
 	private ToggleButton activateBtn;
-	private static SharedPreferences prefs;
+	private SharedPreferences prefs;
 	ComponentName component;
+	DevicePolicyManager mDPM;
 
 	public MainActivity() {
 		super();
@@ -41,36 +51,48 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+		
 		// Get preference for this app
 		this.prefs = getApplicationContext().getSharedPreferences(
 				LSPRConstants.PREF_NAME, 0);
 
-		
-		//this stores the directory of where pictures will be saved
-
-		prefs.edit()
-		.putString(LSPRConstants.PREF_PATH_NAME,
-				this.getApplicationContext().getFilesDir().getAbsolutePath()).commit();
-		
-		
-		
+		// this stores the directory of where pictures will be saved
+		this.prefs
+				.edit()
+				.putString(
+						LSPRConstants.PREF_PATH_NAME,
+						this.getApplicationContext().getFilesDir()
+								.getAbsolutePath()).commit();
 		
 		// If this is the first launch of the app
 		if (isFirstLaunch()) {
-
 			// go to setup pages
 			goToSetup();
-
 		}
-
+		
 		// set activate button watcher
 		activateBtn = (ToggleButton) findViewById(R.id.activation_button);
 		activateBtn.setOnClickListener(toggleService);
+
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+	}
+
+	@Override
+	public void onStart() {
+
+		int receiverStatus = getPackageManager().getComponentEnabledSetting(
+				getUnlockMonitor());
+
+		if (receiverStatus != PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
+			activateBtn();
+		}
+
+		super.onStart();
 	}
 
 	// Override callback for activities that returned to main page
@@ -193,7 +215,7 @@ public class MainActivity extends Activity {
 						LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, 0);
 
 				// Restore max failed password for wipe from app preference
-				SettingActivity.mDPM.setMaximumFailedPasswordsForWipe(
+				mDPM.setMaximumFailedPasswordsForWipe(
 						SettingActivity.LSPRCN, maxFailedPwForWipe);
 
 				// Enable unlock monitor
@@ -206,7 +228,7 @@ public class MainActivity extends Activity {
 
 			} else {// If intention is to deactivate, turn off the receiver
 				// Update max failed password for wipe to 0
-				SettingActivity.mDPM.setMaximumFailedPasswordsForWipe(
+				mDPM.setMaximumFailedPasswordsForWipe(
 						SettingActivity.LSPRCN, 0);
 
 				// Disable unlock monitor

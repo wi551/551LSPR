@@ -49,6 +49,7 @@ public class SettingActivity extends Activity {
 	EditText mMaxFailedPw2;
 	EditText email;
 	EditText emailPass;
+	EditText emailPassV;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -76,6 +77,7 @@ public class SettingActivity extends Activity {
 		mMaxFailedPw2 = (EditText) findViewById(R.id.max_failed_pw2_input);
 		email = (EditText) findViewById(R.id.emailInput);
 		emailPass = (EditText) findViewById(R.id.emailPassInput);
+		emailPassV = (EditText) findViewById(R.id.emailPassInputV);
 		mActivateBtn = (Button) findViewById(R.id.activateBtn);
 
 		// Watch buttons
@@ -286,6 +288,17 @@ public class SettingActivity extends Activity {
 			return false;
 	}
 
+	// Email validation
+	boolean arePasswordsMatch(String p1, String p2) {
+		
+		if (!p1.equals(p2)) {
+			Toast.makeText(SettingActivity.this, R.string.password_dont_match,
+					Toast.LENGTH_SHORT).show();
+			return false;
+		}
+		return true;
+	}
+
 	// Save settings
 
 	// Save configurations
@@ -293,9 +306,10 @@ public class SettingActivity extends Activity {
 		// validate and save email and password
 		String emailText = email.getText().toString();
 		String emailPassword = emailPass.getText().toString();
+		String emailPasswordV = emailPassV.getText().toString();
 
 		if (isValidEmailAddress(emailText)
-				&& isValidMaxFailedPasswordAttemptsValue()) {
+				&& isValidMaxFailedPasswordAttemptsValue() && arePasswordsMatch(emailPassword, emailPasswordV)) {
 			prefs.edit().putString(LSPRConstants.PREF_EMAIL, emailText)
 					.commit();
 			prefs.edit()
@@ -320,14 +334,14 @@ public class SettingActivity extends Activity {
 				LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, 0);
 		String emailText = prefs.getString(LSPRConstants.PREF_EMAIL,
 				"email@domain.com");
-		String emailPassword = prefs.getString(LSPRConstants.PREF_EMAIL_PASS,
-				"email_password");
+//		String emailPassword = prefs.getString(LSPRConstants.PREF_EMAIL_PASS,
+//				"email_password");
 
 		// populate fields
 		mMaxFailedPw1.setText(Integer.toString(maxFailedPwForService));
 		mMaxFailedPw2.setText(Integer.toString(maxFailedPwForWipe));
 		email.setText(emailText);
-		emailPass.setText(emailPassword);
+//		emailPass.setText(emailPassword);
 
 	}
 

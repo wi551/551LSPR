@@ -22,6 +22,7 @@
         android:label="@string/app_name" >
         <activity
             android:name=".activities.MainActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,6 +36,7 @@
 
         <activity
             android:name=".activities.SettingActivity"
+            android:screenOrientation="portrait"
             android:label="@string/lspr_settings" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,6 +47,7 @@
 
         <activity
             android:name=".activities.setup.WelcomeActivity"
+            android:screenOrientation="portrait"
             android:label="@string/lspr_welcome" >
         </activity>
 
@@ -52,6 +55,7 @@
 
         <activity
             android:name=".activities.setup.EnableAdminActivity"
+            android:screenOrientation="portrait"
             android:label="@string/lspr_enable_admin" >
         </activity>
 
@@ -59,6 +63,7 @@
 
         <activity
             android:name=".activities.setup.SetNewPassActivity"
+            android:screenOrientation="portrait"
             android:label="@string/lspr_set_new_password" >
         </activity>
 
@@ -66,6 +71,7 @@
 
         <activity
             android:name=".activities.setup.ConfigureActivity"
+            android:screenOrientation="portrait"
             android:label="@string/lspr_configure" >
         </activity>
 

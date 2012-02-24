@@ -27,37 +27,32 @@
         android:layout_width="match_parent"
         android:layout_height="75dp" >
 
-        <Button
-            android:id="@+id/setPw"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:text="@string/rst_pw_txt" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/relativeLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_weight="0" >
-
-        <EditText
-            android:id="@+id/max_failed_pw1_input"
-            android:layout_width="123dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:inputType="number" />
-
-        <TextView
-            android:id="@+id/max_failed_pw1_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <RelativeLayout
+            android:id="@+id/relativeLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:text="@string/max_failed_pw1_txt" android:layout_toLeftOf="@+id/max_failed_pw1_input"/>
+            android:layout_weight="0" >
+
+            <EditText
+                android:id="@+id/max_failed_pw1_input"
+                android:layout_width="123dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/max_failed_pw1_txt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/max_failed_pw1_input"
+                android:text="@string/max_failed_pw1_txt" />
+        </RelativeLayout>
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -114,7 +109,7 @@
             android:layout_height="wrap_content"
             android:text="@string/email_txt"
             android:textAppearance="?android:attr/textAppearanceMediumInverse"
-            android:textColor="?android:attr/textColorSecondary" />
+            android:textColor="?android:attr/textColorSecondary"/>
 
         <EditText
             android:id="@+id/emailInput"
@@ -123,7 +118,9 @@
             android:layout_weight="1"
             android:background="@null"
             android:inputType="textEmailAddress"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:textSize="15.0sp" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -149,21 +146,58 @@
             android:background="@null"
             android:inputType="textPassword"
             android:singleLine="true" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:addStatesFromChildren="true"
+        android:background="@android:drawable/edit_text"
+        android:gravity="center_vertical"
+        android:paddingRight="0dip" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/email_pass"
+            android:textAppearance="?android:attr/textAppearanceMediumInverse"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <EditText
+            android:id="@+id/emailPassInputV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="@string/prompt_emailpassv_txt"
+            android:inputType="textPassword"
+            android:singleLine="true" />
+
     </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/relativeLayout3"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="5.45" android:paddingTop="17dp">
+        android:layout_height="85dp"
+        android:paddingTop="17dp" >
+
+        <Button
+            android:id="@+id/setPw"
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="14dp"
+            android:text="@string/rst_pw_txt" />
 
         <Button
             android:id="@+id/activateBtn"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:text="@string/activate_txt"/>
+            android:layout_width="140dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@+id/setPw"
+            android:text="@string/activate_txt" />
 
     </RelativeLayout>
 
