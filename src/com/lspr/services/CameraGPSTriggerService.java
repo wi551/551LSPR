@@ -48,13 +48,41 @@ public class CameraGPSTriggerService extends Service {
 	/** A safe way to get an instance of the Camera object. */
 	public static Camera getCameraInstance() {
 		Camera c = null;
-		try {
-			// 1 as the parameter is for the front camera, 0 is for back camera
-			c = Camera.open(1); // attempt to get a Camera instance
-		} catch (Exception e) {
-			// Camera is not available (in use or does not exist)
+		/*
+		 * try { // 1 as the parameter is for the front camera, 0 is for back
+		 * camera c = Camera.open(1); // attempt to get a Camera instance }
+		 * catch (Exception e) { // Camera is not available (in use or does not
+		 * exist) }
+		 */
+		int cameraCount = 0;
+		boolean hasFront=false, hasBack=false;
+		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+		cameraCount = Camera.getNumberOfCameras();
+		for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
+			Camera.getCameraInfo(camIdx, cameraInfo);
+			if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+					// phone has a front facing camera available
+					hasFront = true;
+
+			} else if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+				// phone has a back facing camera available
+				hasBack = true;
+			} else {
+				// unable to determine camera information
+			}
 		}
-		return c; // returns null if camera is unavailable
+		//priority to use front facing camera if available
+		//if not, use back camera
+		if(hasFront){
+			c = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+		}else if(hasBack){
+			c = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+		}else{
+			//return null if camera isn't available 
+			c=null;
+		}
+
+		return c;
 	}
 
 	private void releaseCamera() {
