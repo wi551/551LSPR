@@ -6,9 +6,8 @@
   Description: Welcome screen
   
 -->
-
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/welcomePage"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal|left|right"
@@ -16,7 +15,7 @@
     android:padding="4dip" >
 
     <TextView
-        android:id="@+id/welcomeName"
+        android:id="@+id/welcome_title"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:text="@string/welcome_title_txt"
@@ -38,7 +37,7 @@
             android:text="@string/welcome_next_txt" />
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/welcome_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"

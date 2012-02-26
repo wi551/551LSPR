@@ -13,6 +13,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 
 import com.lspr.R;
@@ -36,6 +39,11 @@ public class WelcomeActivity extends Activity {
 		Button nextBtn = (Button) findViewById(R.id.welcome_next_btn);
 		nextBtn.setOnClickListener(nextBtnListener);
 
+	}
+	
+	@Override
+	protected void onStart(){
+		super.onStart();
 	}
 
 	@Override

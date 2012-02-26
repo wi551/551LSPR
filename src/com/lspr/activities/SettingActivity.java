@@ -13,12 +13,15 @@ import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -32,9 +35,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lspr.R;
+import com.lspr.activities.setup.ConfigureActivity;
 import com.lspr.constants.LSPRConstants;
 import com.lspr.modules.Mail;
 import com.lspr.receivers.DeviceAdminAndUnlockMonitorReceiver;
@@ -48,6 +53,8 @@ public class SettingActivity extends Activity {
 	static ComponentName LSPRCN;
 	private static SharedPreferences prefs;
 	private int duration = 900000;
+	private static final int DIALOG_VERIFY_EMAIL = 0;
+	private static final int DIALOG2_ACTIVATING = 1;
 
 	// UI stuffs
 	Button mSetPasswordButton;
@@ -58,6 +65,8 @@ public class SettingActivity extends Activity {
 	EditText email;
 	EditText emailPass;
 	EditText emailPassV;
+	ProgressDialog dialog1;
+	ProgressDialog dialog2;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -84,7 +93,7 @@ public class SettingActivity extends Activity {
 		mSpinner = (Spinner) findViewById(R.id.often_spinner);
 		email = (EditText) findViewById(R.id.emailInput);
 		emailPass = (EditText) findViewById(R.id.emailPassInput);
-		emailPassV = (EditText) findViewById(R.id.emailPassInputV);
+		// emailPassV = (EditText) findViewById(R.id.emailPassInputV);
 		mActivateBtn = (Button) findViewById(R.id.activateBtn);
 
 		// Set adapter to spinner
@@ -140,12 +149,37 @@ public class SettingActivity extends Activity {
 		});
 
 		// UI adjustments
+		dialog1 = new ProgressDialog(this);
+		dialog2 = new ProgressDialog(this);
 		mMaxFailedPw1.clearFocus();
 		mSpinner.clearFocus();
 		email.clearFocus();
 		emailPass.clearFocus();
 		mActivateBtn.setOnClickListener(mActivateBtnListener);
 
+	}
+
+	@Override
+	protected void onStart() {
+//		Animation pushupin = AnimationUtils.loadAnimation(
+//				SettingActivity.this, R.anim.push_up_in);
+//		Animation pushrightin= AnimationUtils.loadAnimation(
+//				SettingActivity.this, R.anim.push_right_in);
+//		Animation pushleftin = AnimationUtils.loadAnimation(
+//				SettingActivity.this, R.anim.push_left_in);
+//
+//		findViewById(R.id.setting_title).startAnimation(pushrightin);
+//		findViewById(R.id.max_failed_pw1_txt).startAnimation(pushrightin);
+//		findViewById(R.id.max_failed_pw1_input).startAnimation(pushleftin);
+//		findViewById(R.id.often_txt).startAnimation(pushrightin);
+//		findViewById(R.id.often_spinner).startAnimation(pushleftin);
+//		findViewById(R.id.dm_txt).startAnimation(pushrightin);
+//		findViewById(R.id.emailContainer).startAnimation(pushleftin);
+//		findViewById(R.id.passwordContainer).startAnimation(pushleftin);
+//		mSetPasswordButton.startAnimation(pushrightin);
+//		mActivateBtn.startAnimation(pushleftin);
+
+		super.onStart();
 	}
 
 	// Override callback for key down events
@@ -188,7 +222,6 @@ public class SettingActivity extends Activity {
 		super.onResume();
 	}
 
-	
 	// Override callback for for when activities (if any) return to this
 	// @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -260,17 +293,6 @@ public class SettingActivity extends Activity {
 			return false;
 	}
 
-	// Email validation
-	boolean arePasswordsMatch(String p1, String p2) {
-
-		if (!p1.equals(p2)) {
-			Toast.makeText(SettingActivity.this, R.string.password_dont_match,
-					Toast.LENGTH_SHORT).show();
-			return false;
-		}
-		return true;
-	}
-
 	// Save settings
 
 	// Save configurations
@@ -278,7 +300,7 @@ public class SettingActivity extends Activity {
 		// validate and save email and password
 		String emailText = email.getText().toString();
 		String emailPassword = emailPass.getText().toString();
-		String emailPasswordV = emailPassV.getText().toString();
+		// String emailPasswordV = emailPassV.getText().toString();
 		String selected = mSpinner.getSelectedItem().toString();
 		if (selected.equals("15 minutes")) {
 			duration = 900000;
@@ -290,8 +312,7 @@ public class SettingActivity extends Activity {
 			duration = 3600000;
 		}
 
-		if (isValidEmailAddress(emailText)
-				&& arePasswordsMatch(emailPassword, emailPasswordV)) {
+		if (isValidEmailAddress(emailText)) {
 			prefs.edit().putString(LSPRConstants.PREF_EMAIL, emailText)
 					.commit();
 			prefs.edit()
@@ -319,21 +340,18 @@ public class SettingActivity extends Activity {
 				"email@domain.com");
 		int key = prefs.getInt(LSPRConstants.PREF_SEND_EMAIL_DURATION, 900000);
 		int pos = 0;
-		
-		if(key == 900000){
+
+		if (key == 900000) {
 			pos = 0;
-			
-		}
-		else if(key == 1800000){
+
+		} else if (key == 1800000) {
 			pos = 1;
-		}
-		else if(key == 2700000){
+		} else if (key == 2700000) {
 			pos = 2;
-		}
-		else if(key == 3600000){
+		} else if (key == 3600000) {
 			pos = 3;
 		}
-		
+
 		// populate fields
 		mMaxFailedPw1.setText(Integer.toString(maxFailedPwForService));
 		email.setText(emailText);
@@ -361,6 +379,28 @@ public class SettingActivity extends Activity {
 		finish();
 	}
 
+	@Override
+	protected Dialog onCreateDialog(int id) {
+
+		switch (id) {
+		case DIALOG_VERIFY_EMAIL: {
+			dialog1.setMessage("Verifying email...");
+			dialog1.setIndeterminate(true);
+			dialog1.setCancelable(false);
+			return dialog1;
+		}
+		case DIALOG2_ACTIVATING: {
+
+			dialog2.setMessage("Activating...");
+			dialog2.setIndeterminate(true);
+			dialog2.setCancelable(false);
+			return dialog2;
+		}
+		}
+		return null;
+
+	}
+
 	// Listener for activate button
 	private OnClickListener mActivateBtnListener = new OnClickListener() {
 
@@ -375,51 +415,89 @@ public class SettingActivity extends Activity {
 				boolean active = mDPM.isAdminActive(LSPRCN);
 				if (active) {
 					if (saveSettings()) {
-						new Thread (new Runnable() {
+						new Thread(new Runnable() {
 							public void run() {
-								
-								//test for valid email and pass by sending a email
-								//pass go to main
-								if(testMail()) {
+
+								SettingActivity.this
+										.runOnUiThread(new Runnable() {
+											public void run() {
+												showDialog(DIALOG_VERIFY_EMAIL);
+											}
+										});
+								// test for valid email and pass by sending a
+								// email
+								// pass go to main
+								if (testMail()) {
+									try {
+										Thread.sleep(1000);
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									SettingActivity.this
+											.runOnUiThread(new Runnable() {
+												public void run() {
+													dialog2.cancel();
+												}
+											});
 									goBackToMain();
-								}
-								else {
-									//fail test display error message
-									SettingActivity.this.runOnUiThread(new Runnable() {
-										public void run() {
-											Animation shake = AnimationUtils.loadAnimation(SettingActivity.this, R.anim.shake);
-									        findViewById(R.id.settingsLayout).startAnimation(shake);
-											showToast(SettingActivity.this, "Invalid email or password.");
-										}
-									});
+								} else {
+									// fail test display error message
+									SettingActivity.this
+											.runOnUiThread(new Runnable() {
+												public void run() {
+													dialog1.cancel();
+													Animation shake = AnimationUtils
+															.loadAnimation(
+																	SettingActivity.this,
+																	R.anim.shake);
+													findViewById(
+															R.id.deliveryContainer)
+															.startAnimation(
+																	shake);
+													showToast(
+															SettingActivity.this,
+															"Invalid email or password.");
+												}
+											});
 								}
 							}
 
-							private boolean testMail()
-							{
+							private boolean testMail() {
 								boolean result = false;
 								final Mail m = new Mail();
-								String usertext = prefs.getString(LSPRConstants.PREF_EMAIL, "domain@email.com");
-								String emailPass = prefs.getString(LSPRConstants.PREF_EMAIL_PASS, "password");
+								String usertext = prefs.getString(
+										LSPRConstants.PREF_EMAIL,
+										"domain@email.com");
+								String emailPass = prefs.getString(
+										LSPRConstants.PREF_EMAIL_PASS,
+										"password");
 								String[] toArr = { usertext };
 								m.setPass(emailPass);
 								m.setUser(usertext);
 								m.setTo(toArr);
 								m.setFrom(usertext);
 								m.setSubject("LSPR App Email Test");
-								m.setBody("Congratulations, email and password are vaild."
-										+ "\nAll future emails will be sent the this address " + usertext
+								m.setBody("Congratulations, email and password are valid."
+										+ "\nAll future emails will be sent to this address "
+										+ usertext
 										+ "\nThank you for using the Lost, Stolen Phone Recovery App.");
 								try {
-									if(m.send())
+									if (m.send()) {
+										SettingActivity.this
+												.runOnUiThread(new Runnable() {
+													public void run() {
+														dialog1.cancel();
+														showDialog(DIALOG2_ACTIVATING);
+													}
+												});
 										result = true;
-									else
+									} else
 										result = false;
+								} catch (Exception e) {
+									e.printStackTrace();
 								}
-								catch(Exception e) {
-									
-								}
-								
+
 								return result;
 							}
 						}).start();

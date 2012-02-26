@@ -10,7 +10,12 @@ package com.lspr;
 public final class R {
     public static final class anim {
         public static final int cycle_7=0x7f040000;
-        public static final int shake=0x7f040001;
+        public static final int push_left_in=0x7f040001;
+        public static final int push_left_out=0x7f040002;
+        public static final int push_right_in=0x7f040003;
+        public static final int push_right_out=0x7f040004;
+        public static final int push_up_in=0x7f040005;
+        public static final int shake=0x7f040006;
     }
     public static final class array {
         public static final int durations=0x7f070000;
@@ -25,32 +30,47 @@ public final class R {
         public static final int wood=0x7f020004;
     }
     public static final class id {
-        public static final int activateBtn=0x7f080017;
-        public static final int activation_button=0x7f080006;
-        public static final int camera_preview=0x7f080007;
-        public static final int cp_next_btn=0x7f080002;
-        public static final int dm_txt=0x7f080011;
-        public static final int eap_next_btn=0x7f080004;
-        public static final int elp_next_btn=0x7f080005;
-        public static final int emailInput=0x7f080012;
-        public static final int emailPassInput=0x7f080013;
-        public static final int emailPassInputV=0x7f080014;
-        public static final int linearLayout2=0x7f080010;
-        public static final int max_failed_pw1_input=0x7f08000b;
-        public static final int max_failed_pw1_txt=0x7f08000c;
-        public static final int often_spinner=0x7f08000f;
-        public static final int often_txt=0x7f08000e;
-        public static final int relativeLayout03=0x7f08000d;
-        public static final int relativeLayout1=0x7f080001;
-        public static final int relativeLayout2=0x7f08000a;
-        public static final int relativeLayout3=0x7f080015;
-        public static final int setPw=0x7f080016;
-        public static final int settingName=0x7f080000;
-        public static final int settingsLayout=0x7f080009;
-        public static final int snp_next_btn=0x7f080008;
-        public static final int textView1=0x7f080003;
-        public static final int welcomeName=0x7f080018;
-        public static final int welcome_next_btn=0x7f080019;
+        public static final int activateBtn=0x7f080024;
+        public static final int activation_button=0x7f08000d;
+        public static final int camera_preview=0x7f08000e;
+        public static final int configurePage=0x7f080000;
+        public static final int cp_msg=0x7f080004;
+        public static final int cp_next_btn=0x7f080003;
+        public static final int cp_title=0x7f080001;
+        public static final int deliveryContainer=0x7f08001d;
+        public static final int dm_txt=0x7f08001c;
+        public static final int eap_msg=0x7f080008;
+        public static final int eap_next_btn=0x7f080007;
+        public static final int eap_title=0x7f080006;
+        public static final int elp_msg=0x7f08000c;
+        public static final int elp_next_btn=0x7f08000b;
+        public static final int elp_title=0x7f08000a;
+        public static final int emailContainer=0x7f08001e;
+        public static final int emailInput=0x7f08001f;
+        public static final int emailPassInput=0x7f080021;
+        public static final int enableAdminPage=0x7f080005;
+        public static final int enableLocationPage=0x7f080009;
+        public static final int linearLayout2=0x7f08001b;
+        public static final int max_failed_pw1_input=0x7f080016;
+        public static final int max_failed_pw1_txt=0x7f080017;
+        public static final int often_spinner=0x7f08001a;
+        public static final int often_txt=0x7f080019;
+        public static final int passwordContainer=0x7f080020;
+        public static final int relativeLayout03=0x7f080018;
+        public static final int relativeLayout1=0x7f080002;
+        public static final int relativeLayout2=0x7f080015;
+        public static final int relativeLayout3=0x7f080022;
+        public static final int setNewPassPage=0x7f08000f;
+        public static final int setPw=0x7f080023;
+        public static final int setting_title=0x7f080014;
+        public static final int settingsPage=0x7f080013;
+        public static final int snp_msg=0x7f080012;
+        public static final int snp_next_btn=0x7f080011;
+        public static final int snp_title=0x7f080010;
+        public static final int welcomePage=0x7f080025;
+        public static final int welcome_msg=0x7f080028;
+        public static final int welcome_next_btn=0x7f080027;
+        public static final int welcome_title=0x7f080026;
     }
     public static final class layout {
         public static final int configure=0x7f030000;

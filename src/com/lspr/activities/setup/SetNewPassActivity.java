@@ -19,6 +19,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import com.lspr.R;
@@ -57,6 +59,18 @@ public class SetNewPassActivity extends Activity {
 
 		// Set password quality
 		setPasswordType(DevicePolicyManager.PASSWORD_QUALITY_SOMETHING);
+	}
+	
+	@Override
+	protected void onStart(){
+		Animation pushleftin = AnimationUtils.loadAnimation(SetNewPassActivity.this,
+				R.anim.push_left_in);
+		
+		findViewById(R.id.snp_title).startAnimation(pushleftin);
+		findViewById(R.id.snp_msg).startAnimation(pushleftin);
+		findViewById(R.id.snp_next_btn).startAnimation(pushleftin);
+		
+		super.onStart();
 	}
 	
 	@Override

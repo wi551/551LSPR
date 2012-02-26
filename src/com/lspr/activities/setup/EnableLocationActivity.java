@@ -17,6 +17,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -42,6 +44,18 @@ public class EnableLocationActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+	}
+	
+	@Override
+	protected void onStart(){
+		Animation pushleftin = AnimationUtils.loadAnimation(EnableLocationActivity.this,
+				R.anim.push_left_in);
+		
+		findViewById(R.id.elp_title).startAnimation(pushleftin);
+		findViewById(R.id.elp_msg).startAnimation(pushleftin);
+		findViewById(R.id.elp_next_btn).startAnimation(pushleftin);
+		
+		super.onStart();
 	}
 
 	@Override
