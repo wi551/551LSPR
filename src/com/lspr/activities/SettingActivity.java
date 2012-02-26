@@ -24,6 +24,8 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -385,6 +387,8 @@ public class SettingActivity extends Activity {
 									//fail test display error message
 									SettingActivity.this.runOnUiThread(new Runnable() {
 										public void run() {
+											Animation shake = AnimationUtils.loadAnimation(SettingActivity.this, R.anim.shake);
+									        findViewById(R.id.settingsLayout).startAnimation(shake);
 											showToast(SettingActivity.this, "Invalid email or password.");
 										}
 									});
