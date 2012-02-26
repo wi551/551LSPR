@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.lspr.R;
 import com.lspr.constants.LSPRConstants;
+import com.lspr.modules.Mail;
 import com.lspr.receivers.DeviceAdminAndUnlockMonitorReceiver;
 
 public class SettingActivity extends Activity {
@@ -373,10 +374,46 @@ public class SettingActivity extends Activity {
 				boolean active = mDPM.isAdminActive(LSPRCN);
 				if (active) {
 					if (saveSettings()) {
-						goBackToMain();
+						if(testMail()) {
+							goBackToMain();
+						}
+						else {
+							Toast.makeText(SettingActivity.this,
+									"Invalid email or password", Toast.LENGTH_SHORT)
+									.show();
+						}
 					}
 				}
 			}
 		}
 	};
+	
+	private boolean testMail()
+	{
+		boolean result = false;
+		final Mail m = new Mail();
+		String usertext = prefs.getString(LSPRConstants.PREF_EMAIL, "domain@email.com");
+		String emailPass = prefs.getString(LSPRConstants.PREF_EMAIL_PASS, "password");
+		String[] toArr = { usertext };
+		m.setPass(emailPass);
+		m.setUser(usertext);
+		m.setTo(toArr);
+		m.setFrom(usertext);
+		m.setSubject("LSPR App Email Test");
+		m.setBody("Congratulations, email and password are vaild."
+				+ "\nAll future emails will be sent the this address " + usertext
+				+ "\nThank you for using the Lost, Stolen Phone Recovery App.");
+		try {
+			if(m.send())
+				result = true;
+			else
+				result = false;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
+
 }
