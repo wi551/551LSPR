@@ -8,7 +8,6 @@
 
 package com.lspr.activities;
 
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -374,46 +373,55 @@ public class SettingActivity extends Activity {
 				boolean active = mDPM.isAdminActive(LSPRCN);
 				if (active) {
 					if (saveSettings()) {
-						if(testMail()) {
-							goBackToMain();
-						}
-						else {
-							Toast.makeText(SettingActivity.this,
-									"Invalid email or password", Toast.LENGTH_SHORT)
-									.show();
-						}
+						new Thread (new Runnable() {
+							public void run() {
+								
+								//test for valid email and pass by sending a email
+								//pass go to main
+								if(testMail()) {
+									goBackToMain();
+								}
+								else {
+									//fail test display error message
+									SettingActivity.this.runOnUiThread(new Runnable() {
+										public void run() {
+											showToast(SettingActivity.this, "Invalid email or password.");
+										}
+									});
+								}
+							}
+
+							private boolean testMail()
+							{
+								boolean result = false;
+								final Mail m = new Mail();
+								String usertext = prefs.getString(LSPRConstants.PREF_EMAIL, "domain@email.com");
+								String emailPass = prefs.getString(LSPRConstants.PREF_EMAIL_PASS, "password");
+								String[] toArr = { usertext };
+								m.setPass(emailPass);
+								m.setUser(usertext);
+								m.setTo(toArr);
+								m.setFrom(usertext);
+								m.setSubject("LSPR App Email Test");
+								m.setBody("Congratulations, email and password are vaild."
+										+ "\nAll future emails will be sent the this address " + usertext
+										+ "\nThank you for using the Lost, Stolen Phone Recovery App.");
+								try {
+									if(m.send())
+										result = true;
+									else
+										result = false;
+								}
+								catch(Exception e) {
+									
+								}
+								
+								return result;
+							}
+						}).start();
 					}
 				}
 			}
 		}
 	};
-	
-	private boolean testMail()
-	{
-		boolean result = false;
-		final Mail m = new Mail();
-		String usertext = prefs.getString(LSPRConstants.PREF_EMAIL, "domain@email.com");
-		String emailPass = prefs.getString(LSPRConstants.PREF_EMAIL_PASS, "password");
-		String[] toArr = { usertext };
-		m.setPass(emailPass);
-		m.setUser(usertext);
-		m.setTo(toArr);
-		m.setFrom(usertext);
-		m.setSubject("LSPR App Email Test");
-		m.setBody("Congratulations, email and password are vaild."
-				+ "\nAll future emails will be sent the this address " + usertext
-				+ "\nThank you for using the Lost, Stolen Phone Recovery App.");
-		try {
-			if(m.send())
-				result = true;
-			else
-				result = false;
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		return result;
-	}
-
 }

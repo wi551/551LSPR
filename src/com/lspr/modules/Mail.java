@@ -1,3 +1,17 @@
+/*
+ * Using open source project by Jon Simon
+ * Android app that emails without User Intervention
+ * http://www.jondev.net/articles/Sending_Emails_without_User_Intervention_%28no_Intents%29_in_Android
+ * 
+ * Uses javamail-android open source JavaAPI
+ * three .jars
+ * activation.jar
+ * additionnal.jar
+ * mail.jar
+ * from: 
+ * http://code.google.com/p/javamail-android/
+ */
+
 package com.lspr.modules;
  
 import java.util.Date; 
