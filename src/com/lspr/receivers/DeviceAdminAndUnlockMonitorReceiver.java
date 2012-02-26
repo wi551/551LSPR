@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.lspr.activities.SettingActivity;
 import com.lspr.constants.LSPRConstants;
 import com.lspr.services.CameraGPSTriggerService;
 
@@ -39,11 +40,16 @@ public class DeviceAdminAndUnlockMonitorReceiver extends DeviceAdminReceiver {
 		int attempt = mDPM.getCurrentFailedPasswordAttempts();
 
 		if (attempt >= maxFailedPwForService) {
-//			Log.e(TAG, "Start Camera+GPS Service!");
+			CameraGPSTriggerService.stopGps = false;
 			Intent serviceIntent = new Intent(context,
 					CameraGPSTriggerService.class);
 			context.startService(serviceIntent);
 		}
 	}
 	
+	@Override
+	public void onPasswordSucceeded(Context context, Intent intent) {
+		CameraGPSTriggerService.stopGps = true;
+
+	}
 }

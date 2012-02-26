@@ -22,12 +22,13 @@ public class WelcomeActivity extends Activity {
 	static final private int SETUP_ENABLE_ADMIN = 0;
 	static final private int SETUP_SET_NEW_PASSWORD = 1;
 	static final private int SETUP_CONFIGURE = 2;
+	static final private int SETUP_ENABLE_LOCATION = 3;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
-		
+
 		// Inflate UI
 		setContentView(R.layout.welcome);
 
@@ -44,18 +45,25 @@ public class WelcomeActivity extends Activity {
 
 		// back from enable admin page, go set new password screen
 		case SETUP_ENABLE_ADMIN: {
+			goToEnableLocationSetup();
+
+			break;
+
+		}
+
+		case SETUP_ENABLE_LOCATION: {
 			goToSetNewPasswordSetup();
 			break;
 
 		}
-		
+
 		// back from set new password page, go configure message screen
 		case SETUP_SET_NEW_PASSWORD: {
 			goToConfigureSetup();
 			break;
 
 		}
-		
+
 		// back from configure message page, go back to main page
 		case SETUP_CONFIGURE: {
 			setResult(RESULT_OK);
@@ -95,6 +103,12 @@ public class WelcomeActivity extends Activity {
 	private void goToEnableAdminSetup() {
 		Intent intent = new Intent(this, EnableAdminActivity.class);
 		startActivityForResult(intent, SETUP_ENABLE_ADMIN);
+	}
+
+	// Go enable location page
+	private void goToEnableLocationSetup() {
+		Intent intent = new Intent(this, EnableLocationActivity.class);
+		startActivityForResult(intent, SETUP_ENABLE_LOCATION);
 	}
 
 	private OnClickListener nextBtnListener = new OnClickListener() {

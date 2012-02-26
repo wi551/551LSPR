@@ -13,6 +13,7 @@
     android:layout_height="wrap_content"
     android:gravity="center_horizontal|left|right"
     android:orientation="vertical"
+    android:background="@drawable/darkwood"
     android:padding="4dip" >
 
     <TextView
@@ -61,25 +62,21 @@
         android:layout_height="70dp"
         android:layout_weight="0" >
 
-        <EditText
-            android:id="@+id/max_failed_pw2_input"
-            android:layout_width="123dp"
+        <TextView
+            android:id="@+id/often_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="@string/often_txt" android:layout_toLeftOf="@+id/often_spinner"/>
+
+        <Spinner
+            android:id="@+id/often_spinner"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:inputType="number" >
+            android:prompt="@string/often_prompt" />
 
-            <requestFocus />
-        </EditText>
-
-        <TextView
-            android:id="@+id/max_failed_pw2_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/max_failed_pw2_input"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/max_failed_pw2_input"
-            android:text="@string/max_failed_pw2_txt" />
     </RelativeLayout>
 
     <LinearLayout

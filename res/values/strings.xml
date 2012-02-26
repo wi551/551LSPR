@@ -15,7 +15,14 @@
     <string name="setting_txt">Setting</string>
     <string name="rst_pw_txt">Reset Password</string>
     <string name="max_failed_pw1_txt">Max failed password attempt to trigger camera and GPS services</string>
-    <string name="max_failed_pw2_txt">Max failed password attempt to trigger data wipe</string>
+    <string name="often_txt">How often would you like us to send you GPS location once stolen?</string>
+    <string name="often_prompt">Choose a duration</string>
+    <string-array name="durations">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>45 minutes</item>
+        <item>1 hour</item>
+    </string-array>
     <string name="dm_txt">Delivery</string>
     <string name="email_txt">Email:</string>
     <string name="prompt_email_txt">email address</string>
@@ -42,14 +49,20 @@
     <string name="eap_next_txt">Enable Admin</string>
     <string name="lspr_enable_admin">Enable Admin Screen</string>
     
+    <!-- Enable Location Page -->
+    <string name="elp_title_txt">Enable Location(Step 2)</string>
+    <string name="elp_message_txt">To allow this app to track its location, please make sure all location services are checked and hit back when you\'re done.</string>
+    <string name="elp_next_txt">Enable Location</string>
+    <string name="lspr_enable_location">Enable Location Screen</string>
+    
     <!-- Set New Password Page -->
-    <string name="snp_title_txt">Set New Password(Step 2)</string>
+    <string name="snp_title_txt">Set New Password(Step 3)</string>
     <string name="snp_message_txt">To strengthen security, please set a new password for your device.</string>
     <string name="snp_next_txt">Set New Password</string>
     <string name="lspr_set_new_password">Set New Password Screen</string>
     
     <!-- Configure Page -->
-    <string name="cp_title_txt">Configure(Step 3)</string>
+    <string name="cp_title_txt">Configure(Step 4)</string>
     <string name="cp_message_txt">You\'re almost there! Please continue to configure the core settings for this app.</string>
     <string name="cp_next_txt">Next</string>
     <string name="lspr_configure">Configure screen</string>

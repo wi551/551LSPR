@@ -58,6 +58,14 @@
             android:screenOrientation="portrait"
             android:label="@string/lspr_enable_admin" >
         </activity>
+        
+        <!-- Enable Location Activity -->
+
+        <activity
+            android:name=".activities.setup.EnableLocationActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/lspr_enable_location" >
+        </activity>
 
         <!-- Set New Password Activity -->
 

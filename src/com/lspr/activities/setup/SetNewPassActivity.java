@@ -1,7 +1,7 @@
 /*
  * author :thomasloh
  * date: Feb 12
- * Description: Third screen of the app. Allow the user to set new password. 
+ * Description: Fourth screen of the app. Allow the user to set new password. 
  * 
  * 
  */

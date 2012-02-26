@@ -8,6 +8,7 @@
 
 package com.lspr.activities;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,8 +25,12 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.lspr.R;
@@ -40,13 +45,14 @@ public class SettingActivity extends Activity {
 	static ActivityManager mAM;
 	static ComponentName LSPRCN;
 	private static SharedPreferences prefs;
+	private int duration = 900000;
 
 	// UI stuffs
 	Button mSetPasswordButton;
 	Button mActivateBtn;
 	Button mEnableAdminButton;
 	EditText mMaxFailedPw1;
-	EditText mMaxFailedPw2;
+	Spinner mSpinner;
 	EditText email;
 	EditText emailPass;
 	EditText emailPassV;
@@ -70,15 +76,45 @@ public class SettingActivity extends Activity {
 				LSPRConstants.PREF_NAME, 0);
 
 		// Link buttons
-		// mEnableAdminButton = (Button) findViewById(R.id.enableAdminBtn);
 		mSetPasswordButton = (Button) findViewById(R.id.setPw);
 		mSetPasswordButton.setOnClickListener(mSetPasswordListener);
 		mMaxFailedPw1 = (EditText) findViewById(R.id.max_failed_pw1_input);
-		mMaxFailedPw2 = (EditText) findViewById(R.id.max_failed_pw2_input);
+		mSpinner = (Spinner) findViewById(R.id.often_spinner);
 		email = (EditText) findViewById(R.id.emailInput);
 		emailPass = (EditText) findViewById(R.id.emailPassInput);
 		emailPassV = (EditText) findViewById(R.id.emailPassInputV);
 		mActivateBtn = (Button) findViewById(R.id.activateBtn);
+
+		// Set adapter to spinner
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				this, R.array.durations, android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		mSpinner.setAdapter(adapter);
+		mSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+
+				String selected = parent.getItemAtPosition(position).toString();
+				if (selected == "15 minutes") {
+					duration = 900000;
+				} else if (selected == "30 minutes") {
+					duration = 1800000;
+				} else if (selected == "45 minutes") {
+					duration = 2700000;
+				} else if (selected == "1 hour") {
+					duration = 3600000;
+				}
+
+				prefs.edit()
+						.putInt(LSPRConstants.PREF_SEND_EMAIL_DURATION,
+								duration).commit();
+			}
+
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// TODO Auto-generated method stub
+
+			}
+		});
 
 		// Watch buttons
 		mMaxFailedPw1.addTextChangedListener(new TextWatcher() {
@@ -101,38 +137,9 @@ public class SettingActivity extends Activity {
 			}
 		});
 
-		mMaxFailedPw2.addTextChangedListener(new TextWatcher() {
-			public void afterTextChanged(Editable s) {
-			}
-
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
-
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				try {
-					int maxFailCount = Integer.parseInt(s.toString());
-					if (maxFailCount > 0) {
-
-						int maxFailed1 = Integer.parseInt(mMaxFailedPw1
-								.getText().toString());
-						if (maxFailCount <= maxFailed1) {
-							Toast.makeText(
-									getApplicationContext(),
-									"WARNING: This number must be strictly greater than number above",
-									Toast.LENGTH_SHORT).show();
-						}
-					}
-					setMaxFailedPwForWipe(maxFailCount);
-				} catch (NumberFormatException e) {
-				}
-			}
-		});
-
 		// UI adjustments
 		mMaxFailedPw1.clearFocus();
-		mMaxFailedPw2.clearFocus();
+		mSpinner.clearFocus();
 		email.clearFocus();
 		emailPass.clearFocus();
 		mActivateBtn.setOnClickListener(mActivateBtnListener);
@@ -172,25 +179,18 @@ public class SettingActivity extends Activity {
 		}
 
 		mMaxFailedPw1.clearFocus();
-		mMaxFailedPw2.clearFocus();
+		mSpinner.clearFocus();
 		email.clearFocus();
 		emailPass.clearFocus();
 
 		super.onResume();
 	}
 
+	
 	// Override callback for for when activities (if any) return to this
 	// @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-	}
-
-	// Set max number of unlock attempts to trigger data wipe
-	// let the user set max number failed attempts
-	private void setMaxFailedPwForWipe(int length) {
-		prefs.edit().putInt(LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, length)
-				.commit();
-		updatePasswordPolicies();
 	}
 
 	// Function to get app preference
@@ -218,21 +218,13 @@ public class SettingActivity extends Activity {
 	private void updatePasswordPolicies() {
 		final int pwQuality = prefs.getInt(LSPRConstants.PREF_PASSWORD_QUALITY,
 				DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED);
-		final int maxFailedPwForService = prefs.getInt(
-				LSPRConstants.PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
-		final int maxFailedPwForWipe = prefs.getInt(
-				LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, 0);
 
 		// save max password failed attempts
 		boolean active = mDPM.isAdminActive(LSPRCN);
 		if (active) {
 			mDPM.setPasswordQuality(LSPRCN, pwQuality);
-			// mDPM.setPasswordMinimumLength(LSPRCN, pwLength);
-			mDPM.setMaximumFailedPasswordsForWipe(LSPRCN, maxFailedPwForWipe);
 		}
 	}
-
-	// Email validation
 
 	// Email validation
 	boolean isValidEmailAddress(String aEmailAddress) {
@@ -250,27 +242,7 @@ public class SettingActivity extends Activity {
 		}
 	}
 
-	// max number of unlock attempts fields validation
-
-	// Max password attempts field validation
-	boolean isValidMaxFailedPasswordAttemptsValue() {
-
-		int maxFailedPwForService = prefs.getInt(
-				LSPRConstants.PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
-		int maxFailedPwForWipe = prefs.getInt(
-				LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, 0);
-
-		if (maxFailedPwForService < maxFailedPwForWipe) {
-			return true;
-		} else {
-			Toast.makeText(SettingActivity.this,
-					R.string.invalid_attempts_value, Toast.LENGTH_SHORT).show();
-			return false;
-		}
-	}
-
 	// configuration fields validation
-
 	// Settings page configuration fields validation
 	private boolean settingFieldsEmpty() {
 
@@ -278,11 +250,9 @@ public class SettingActivity extends Activity {
 		String emailPassword = emailPass.getText().toString();
 		int maxFailedPwForService = prefs.getInt(
 				LSPRConstants.PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
-		int maxFailedPwForWipe = prefs.getInt(
-				LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, 0);
 
 		if (emailText.isEmpty() || emailPassword.isEmpty()
-				|| maxFailedPwForService == 0 || maxFailedPwForWipe == 0)
+				|| maxFailedPwForService == 0)
 			return true;
 		else
 			return false;
@@ -290,7 +260,7 @@ public class SettingActivity extends Activity {
 
 	// Email validation
 	boolean arePasswordsMatch(String p1, String p2) {
-		
+
 		if (!p1.equals(p2)) {
 			Toast.makeText(SettingActivity.this, R.string.password_dont_match,
 					Toast.LENGTH_SHORT).show();
@@ -307,9 +277,19 @@ public class SettingActivity extends Activity {
 		String emailText = email.getText().toString();
 		String emailPassword = emailPass.getText().toString();
 		String emailPasswordV = emailPassV.getText().toString();
+		String selected = mSpinner.getSelectedItem().toString();
+		if (selected.equals("15 minutes")) {
+			duration = 900000;
+		} else if (selected.equals("30 minutes")) {
+			duration = 1800000;
+		} else if (selected.equals("45 minutes")) {
+			duration = 2700000;
+		} else if (selected.equals("1 hour")) {
+			duration = 3600000;
+		}
 
 		if (isValidEmailAddress(emailText)
-				&& isValidMaxFailedPasswordAttemptsValue() && arePasswordsMatch(emailPassword, emailPasswordV)) {
+				&& arePasswordsMatch(emailPassword, emailPasswordV)) {
 			prefs.edit().putString(LSPRConstants.PREF_EMAIL, emailText)
 					.commit();
 			prefs.edit()
@@ -317,9 +297,12 @@ public class SettingActivity extends Activity {
 					.commit();
 			// save password policy
 			updatePasswordPolicies();
+			// save send email duration
+			prefs.edit()
+					.putInt(LSPRConstants.PREF_SEND_EMAIL_DURATION, duration)
+					.commit();
 			return true;
 		} else {
-
 			return false;
 		}
 
@@ -330,19 +313,29 @@ public class SettingActivity extends Activity {
 
 		final int maxFailedPwForService = prefs.getInt(
 				LSPRConstants.PREF_MAX_FAILED_PW_FOR_SERVICE, 0);
-		final int maxFailedPwForWipe = prefs.getInt(
-				LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, 0);
 		String emailText = prefs.getString(LSPRConstants.PREF_EMAIL,
 				"email@domain.com");
-//		String emailPassword = prefs.getString(LSPRConstants.PREF_EMAIL_PASS,
-//				"email_password");
-
+		int key = prefs.getInt(LSPRConstants.PREF_SEND_EMAIL_DURATION, 900000);
+		int pos = 0;
+		
+		if(key == 900000){
+			pos = 0;
+			
+		}
+		else if(key == 1800000){
+			pos = 1;
+		}
+		else if(key == 2700000){
+			pos = 2;
+		}
+		else if(key == 3600000){
+			pos = 3;
+		}
+		
 		// populate fields
 		mMaxFailedPw1.setText(Integer.toString(maxFailedPwForService));
-		mMaxFailedPw2.setText(Integer.toString(maxFailedPwForWipe));
 		email.setText(emailText);
-//		emailPass.setText(emailPassword);
-
+		mSpinner.setSelection(pos);
 	}
 
 	// Listener for when reset password button is pressed
@@ -367,8 +360,6 @@ public class SettingActivity extends Activity {
 	}
 
 	// Listener for activate button
-
-	// i
 	private OnClickListener mActivateBtnListener = new OnClickListener() {
 
 		public void onClick(View v) {
@@ -388,5 +379,4 @@ public class SettingActivity extends Activity {
 			}
 		}
 	};
-
 }

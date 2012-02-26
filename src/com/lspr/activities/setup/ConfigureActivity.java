@@ -1,7 +1,7 @@
 /*
  * author :thomasloh
  * date: Feb 12
- * Description: Fourth screen of the app. Shows a configure message. 
+ * Description: Fifth screen of the app. Shows a configure message. 
  * 
  * 
  */

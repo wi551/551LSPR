@@ -25,11 +25,10 @@ public class LSPRConstants {
 	public static String PREF_IS_FIRST_LAUNCH = "is_first_launch";
 	public static String PREF_PASSWORD_QUALITY = "password_quality";
 	public static String PREF_PASSWORD_LENGTH = "password_length";
-	public static String PREF_MAX_FAILED_PW_FOR_WIPE = "max_failed_pw_for_wipe";
+	public static String PREF_SEND_EMAIL_DURATION = "send_email_duration";
 	public static String PREF_MAX_FAILED_PW_FOR_SERVICE = "max_failed_pw_for_service";
 	public static String PREF_EMAIL = "email_address";
 	public static String PREF_EMAIL_PASS = "email_password";
 	public static String PREF_BACK_FROM_SETTING_THRU_BACK_BTN = "back_from_setting_thru_back_btn";
-	
 	
 }

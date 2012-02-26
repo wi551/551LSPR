@@ -34,11 +34,12 @@ public class CameraGPSTriggerService extends Service {
 
 	private static final String TAG = "Service";
 	private SharedPreferences prefs;
-	private LocationManager mlocManager;
+	private static LocationManager mlocManager;
 	private String mlat;
 	private String mlong;
 	private StringBuilder mAddress;
 	Geocoder geocoder;
+	public static boolean stopGps = false;
 
 	public CameraGPSTriggerService() {
 		super();
@@ -48,13 +49,41 @@ public class CameraGPSTriggerService extends Service {
 	/** A safe way to get an instance of the Camera object. */
 	public static Camera getCameraInstance() {
 		Camera c = null;
-		try {
-			// 1 as the parameter is for the front camera, 0 is for back camera
-			c = Camera.open(1); // attempt to get a Camera instance
-		} catch (Exception e) {
-			// Camera is not available (in use or does not exist)
+		/*
+		 * try { // 1 as the parameter is for the front camera, 0 is for back
+		 * camera c = Camera.open(1); // attempt to get a Camera instance }
+		 * catch (Exception e) { // Camera is not available (in use or does not
+		 * exist) }
+		 */
+		int cameraCount = 0;
+		boolean hasFront = false, hasBack = false;
+		Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+		cameraCount = Camera.getNumberOfCameras();
+		for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
+			Camera.getCameraInfo(camIdx, cameraInfo);
+			if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+				// phone has a front facing camera available
+				hasFront = true;
+
+			} else if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+				// phone has a back facing camera available
+				hasBack = true;
+			} else {
+				// unable to determine camera information
+			}
 		}
-		return c; // returns null if camera is unavailable
+		// priority to use front facing camera if available
+		// if not, use back camera
+		if (hasFront) {
+			c = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+		} else if (hasBack) {
+			c = Camera.open(Camera.CameraInfo.CAMERA_FACING_BACK);
+		} else {
+			// return null if camera isn't available
+			c = null;
+		}
+
+		return c;
 	}
 
 	private void releaseCamera() {
@@ -95,9 +124,12 @@ public class CameraGPSTriggerService extends Service {
 
 				// Grab GPS location
 				// ----------------------------------------------------------------------
+				int duration = prefs.getInt(
+						LSPRConstants.PREF_SEND_EMAIL_DURATION, 900000);
+
 				mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 				mlocManager.requestLocationUpdates(
-						LocationManager.NETWORK_PROVIDER, 0, 0,
+						LocationManager.NETWORK_PROVIDER, duration, 0,
 						networklocationListener);
 
 			} catch (FileNotFoundException e) {
@@ -152,7 +184,10 @@ public class CameraGPSTriggerService extends Service {
 			// send mail
 			new Thread(new Runnable() {
 				public void run() {
-					sendMail(emailText, emailPassword, mlat, mlong, mAddress);
+					if (!stopGps) {
+						sendMail(emailText, emailPassword, mlat, mlong,
+								mAddress);
+					}
 				}
 
 				private void sendMail(String email, String pass, String mlat,
@@ -177,7 +212,6 @@ public class CameraGPSTriggerService extends Service {
 								+ File.separator
 								+ prefs.getString(LSPRConstants.PREF_FILE_NAME,
 										"file_name");
-						Log.e(TAG, path_to_picture);
 
 						// attach picture
 						m.addAttachment(path_to_picture);
@@ -194,7 +228,9 @@ public class CameraGPSTriggerService extends Service {
 				}
 			}).start();
 
-			mlocManager.removeUpdates(networklocationListener);
+			if (stopGps) {
+				mlocManager.removeUpdates(networklocationListener);
+			}
 
 			stopSelf();
 
@@ -217,29 +253,23 @@ public class CameraGPSTriggerService extends Service {
 
 	@Override
 	public void onCreate() {
-		Toast.makeText(this, "My Service Created", Toast.LENGTH_LONG).show();
-		Log.d(TAG, "onCreate");
 		geocoder = new Geocoder(this, Locale.ENGLISH);
 
 	}
 
 	@Override
 	public void onDestroy() {
-		Toast.makeText(this, "My Service Stopped", Toast.LENGTH_LONG).show();
-		Log.d(TAG, "onDestroy");
 		releaseCamera();
 	}
 
 	@Override
 	public void onStart(Intent intent, int startid) {
-		Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
 
 		// Capture picture
 		// ----------------------------------------------------------------------
 
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
-		Log.d(TAG, "onStart");
 		SurfaceView view = new SurfaceView(this.getApplicationContext());
 		try {
 			mCamera.setPreviewDisplay(view.getHolder());
@@ -259,6 +289,5 @@ public class CameraGPSTriggerService extends Service {
 		// take picture
 		mCamera.takePicture(null, null, mPicture);
 		// return to normal sound settings
-
 	}
 }

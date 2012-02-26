@@ -211,12 +211,6 @@ public class MainActivity extends Activity {
 
 				// get app preference and grab max failed password for wipe
 				prefs = SettingActivity.getPreferences(getApplicationContext());
-				final int maxFailedPwForWipe = prefs.getInt(
-						LSPRConstants.PREF_MAX_FAILED_PW_FOR_WIPE, 0);
-
-				// Restore max failed password for wipe from app preference
-				mDPM.setMaximumFailedPasswordsForWipe(
-						SettingActivity.LSPRCN, maxFailedPwForWipe);
 
 				// Enable unlock monitor
 				setUnlockMonitorTo(getUnlockMonitor(),
