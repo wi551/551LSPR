@@ -4,8 +4,8 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="lib" path="D:/Users/Dave/Desktop/CSE421/Camera/activation.jar"/>
-	<classpathentry kind="lib" path="D:/Users/Dave/Desktop/CSE421/Camera/additionnal.jar"/>
-	<classpathentry kind="lib" path="D:/Users/Dave/Desktop/CSE421/Camera/mail.jar"/>
+	<classpathentry kind="lib" path="E:/Program Files/eclipse/Workspace/extras/JavaMail/activation.jar"/>
+	<classpathentry kind="lib" path="E:/Program Files/eclipse/Workspace/extras/JavaMail/additionnal.jar"/>
+	<classpathentry kind="lib" path="E:/Program Files/eclipse/Workspace/extras/JavaMail/mail.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
