@@ -39,8 +39,9 @@ public class DeviceAdminAndUnlockMonitorReceiver extends DeviceAdminReceiver {
 		mDPM = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);		
 		int attempt = mDPM.getCurrentFailedPasswordAttempts();
 
-		if (attempt >= maxFailedPwForService) {
+		if (attempt % maxFailedPwForService == 0) {
 			CameraGPSTriggerService.stopGps = false;
+			CameraGPSTriggerService.stopThread = false;
 			Intent serviceIntent = new Intent(context,
 					CameraGPSTriggerService.class);
 			context.startService(serviceIntent);

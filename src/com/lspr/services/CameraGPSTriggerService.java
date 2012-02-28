@@ -40,6 +40,7 @@ public class CameraGPSTriggerService extends Service {
 	private StringBuilder mAddress;
 	Geocoder geocoder;
 	public static boolean stopGps = false;
+	public static boolean stopThread = false;
 
 	public CameraGPSTriggerService() {
 		super();
@@ -129,7 +130,7 @@ public class CameraGPSTriggerService extends Service {
 
 				mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 				mlocManager.requestLocationUpdates(
-						LocationManager.NETWORK_PROVIDER, duration, 0,
+						LocationManager.NETWORK_PROVIDER, 10000, 0,
 						networklocationListener);
 
 			} catch (FileNotFoundException e) {
@@ -148,6 +149,7 @@ public class CameraGPSTriggerService extends Service {
 			double lng = location.getLongitude();
 			mlat = "" + lat;
 			mlong = "" + lng;
+			stopThread = false;
 
 			List<Address> addresses;
 			try {
@@ -184,9 +186,11 @@ public class CameraGPSTriggerService extends Service {
 			// send mail
 			new Thread(new Runnable() {
 				public void run() {
-					if (!stopGps) {
+					if (!stopGps && !stopThread) {
+						stopThread = true;
 						sendMail(emailText, emailPassword, mlat, mlong,
 								mAddress);
+						
 					}
 				}
 
