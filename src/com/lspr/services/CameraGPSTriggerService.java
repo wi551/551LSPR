@@ -130,7 +130,7 @@ public class CameraGPSTriggerService extends Service {
 
 				mlocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 				mlocManager.requestLocationUpdates(
-						LocationManager.NETWORK_PROVIDER, 10000, 0,
+						LocationManager.NETWORK_PROVIDER, duration, 0,
 						networklocationListener);
 
 			} catch (FileNotFoundException e) {
